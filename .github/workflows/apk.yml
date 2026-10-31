@@ -29,7 +29,11 @@ jobs:
           cp docs/index.html android/app/src/main/assets/index.html
 
       - name: Signing key
-        run: echo "${{ secrets.KEYSTORE_B64 }}" | base64 -d > android/app/release.jks
+        env:
+          KS_B64: ${{ secrets.KEYSTORE_B64 }}
+        run: |
+          if [ -z "$KS_B64" ]; then echo "::error::KEYSTORE_B64 secret is missing (Settings > Secrets and variables > Actions)"; exit 1; fi
+          echo "$KS_B64" | base64 -d > android/app/release.jks
 
       - name: Build APK
         working-directory: android
