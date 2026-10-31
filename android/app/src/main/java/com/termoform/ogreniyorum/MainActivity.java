@@ -3,10 +3,14 @@ package com.termoform.ogreniyorum;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Insets;
+import android.os.Build;
+import android.view.WindowInsets;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.webkit.WebResourceError;
+import android.widget.FrameLayout;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -23,8 +27,11 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         int bg = Color.parseColor("#12191e");
-        getWindow().setStatusBarColor(bg);
-        getWindow().setNavigationBarColor(bg);
+        getWindow().getDecorView().setBackgroundColor(bg);
+        if (Build.VERSION.SDK_INT < 35) {
+            getWindow().setStatusBarColor(bg);
+            getWindow().setNavigationBarColor(bg);
+        }
 
         web = new WebView(this);
         web.setBackgroundColor(bg);
@@ -41,7 +48,18 @@ public class MainActivity extends Activity {
                 }
             }
         });
-        setContentView(web);
+        // Android 15+ draws apps edge to edge: keep the page clear of the status and navigation bars.
+        FrameLayout root = new FrameLayout(this);
+        root.setBackgroundColor(bg);
+        root.addView(web, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+        if (Build.VERSION.SDK_INT >= 30) {
+            root.setOnApplyWindowInsetsListener((v, insets) -> {
+                Insets b = insets.getInsets(WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout());
+                v.setPadding(b.left, b.top, b.right, b.bottom);
+                return WindowInsets.CONSUMED;
+            });
+        }
+        setContentView(root);
 
         if (state != null) web.restoreState(state);
         else web.loadUrl(online() ? BuildConfig.WEB_URL : LOCAL);

@@ -21,7 +21,7 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.7'
+          gradle-version: '8.14.3'
 
       - name: Put the page inside the app (offline copy)
         run: |
@@ -41,7 +41,7 @@ jobs:
           KS_PASS: ${{ secrets.KEYSTORE_PASS }}
         run: |
           set -o pipefail
-          gradle assembleRelease --no-daemon --stacktrace 2>&1 | tee build.log
+          gradle assembleRelease bundleRelease --no-daemon --stacktrace 2>&1 | tee build.log
 
       - name: Show build error
         if: failure()
@@ -52,11 +52,15 @@ jobs:
           echo "::error title=Gradle::$msg"
 
       - name: Rename
-        run: cp android/app/build/outputs/apk/release/app-release.apk termoform-ogreniyorum.apk
+        run: |
+          cp android/app/build/outputs/apk/release/app-release.apk termoform-ogreniyorum.apk
+          cp android/app/build/outputs/bundle/release/app-release.aab termoform-ogreniyorum.aab
 
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.${{ github.run_number }}
           name: Termoform Öğreniyorum 1.0.${{ github.run_number }}
-          files: termoform-ogreniyorum.apk
+          files: |
+            termoform-ogreniyorum.apk
+            termoform-ogreniyorum.aab
           make_latest: true

@@ -10,12 +10,12 @@ def runNo = (System.getenv('GITHUB_RUN_NUMBER') ?: '1').toInteger()
 
 android {
     namespace 'com.termoform.ogreniyorum'
-    compileSdk 34
+    compileSdk 36
 
     defaultConfig {
         applicationId 'com.termoform.ogreniyorum'
         minSdk 23
-        targetSdk 34
+        targetSdk 36
         versionCode runNo
         versionName "1.0.${runNo}"
         buildConfigField 'String', 'WEB_URL', "\"https://${ghOwner}.github.io/${ghRepo}/\""
