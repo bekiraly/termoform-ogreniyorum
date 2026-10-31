@@ -1,0 +1,46 @@
+plugins {
+    id 'com.android.application'
+}
+
+// The page URL comes from the GitHub repository: https://<owner>.github.io/<repo>/
+def repoEnv = System.getenv('GITHUB_REPOSITORY') ?: 'owner/termoform-ogreniyorum'
+def owner = repoEnv.split('/')[0].toLowerCase()
+def repo = repoEnv.split('/')[1]
+def run = (System.getenv('GITHUB_RUN_NUMBER') ?: '1').toInteger()
+
+android {
+    namespace 'com.termoform.ogreniyorum'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.termoform.ogreniyorum'
+        minSdk 23
+        targetSdk 34
+        versionCode run
+        versionName "1.0.${run}"
+        buildConfigField 'String', 'WEB_URL', "\"https://${owner}.github.io/${repo}/\""
+    }
+
+    buildFeatures { buildConfig true }
+
+    signingConfigs {
+        release {
+            storeFile file('release.jks')
+            storePassword System.getenv('KS_PASS')
+            keyAlias 'termoform'
+            keyPassword System.getenv('KS_PASS')
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
