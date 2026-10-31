@@ -4,9 +4,9 @@ plugins {
 
 // The page URL comes from the GitHub repository: https://<owner>.github.io/<repo>/
 def repoEnv = System.getenv('GITHUB_REPOSITORY') ?: 'owner/termoform-ogreniyorum'
-def owner = repoEnv.split('/')[0].toLowerCase()
-def repo = repoEnv.split('/')[1]
-def run = (System.getenv('GITHUB_RUN_NUMBER') ?: '1').toInteger()
+def ghOwner = repoEnv.split('/')[0].toLowerCase()
+def ghRepo = repoEnv.split('/')[1]
+def runNo = (System.getenv('GITHUB_RUN_NUMBER') ?: '1').toInteger()
 
 android {
     namespace 'com.termoform.ogreniyorum'
@@ -16,9 +16,9 @@ android {
         applicationId 'com.termoform.ogreniyorum'
         minSdk 23
         targetSdk 34
-        versionCode run
-        versionName "1.0.${run}"
-        buildConfigField 'String', 'WEB_URL', "\"https://${owner}.github.io/${repo}/\""
+        versionCode runNo
+        versionName "1.0.${runNo}"
+        buildConfigField 'String', 'WEB_URL', "\"https://${ghOwner}.github.io/${ghRepo}/\""
     }
 
     buildFeatures { buildConfig true }
