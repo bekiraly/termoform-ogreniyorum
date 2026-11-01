@@ -145,6 +145,21 @@ footer{color:var(--muted);font-size:12px;padding:10px 0 40px;text-align:center}
 [dir=rtl] .fault{border-left:0;border-right:3px solid var(--bad)}[dir=rtl] .fault.warn{border-right-color:var(--warn)}
 svg,.ph,.pad,.arrows,.step,.lang{direction:ltr}
 .bars .b span{direction:ltr;unicode-bidi:isolate}
+
+/* keypad: tap a value to type it (same as the cycle page) */
+.step .v{cursor:pointer}
+.modal{position:fixed;inset:0;background:rgba(5,9,12,.72);display:grid;place-items:center;padding:16px;z-index:20}
+.modal[hidden]{display:none}
+.kpad{width:min(420px,100%);background:var(--panel);border:1px solid var(--accent);border-radius:8px;padding:14px}
+.kpad h3{font-family:var(--f-disp);margin:0 0 4px;font-size:17px;letter-spacing:.04em}
+.kpad .why{font-size:13px;color:var(--muted);line-height:1.5;margin:0 0 10px}
+.kpad .disp{font-family:var(--f-mono);font-size:28px;text-align:right;padding:8px 12px;background:#0f1519;border:1px solid var(--line);border-radius:4px;color:var(--value);margin-bottom:6px;direction:ltr}
+.kpad .rng{font-size:12px;color:var(--muted);margin-bottom:10px;font-family:var(--f-mono)}
+.kpad .err{color:var(--bad);font-size:12px;min-height:16px;margin-bottom:6px}
+.keys{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;direction:ltr}
+.keys button{padding:13px 0;font-family:var(--f-mono);font-size:18px;background:var(--panel2);border:1px solid var(--line);border-radius:5px;color:var(--fg)}
+.keys .ok{background:var(--accent);color:#14100a;border-color:var(--accent);font-family:var(--f-disp);font-weight:700;font-size:15px}
+[dir=rtl] .kpad h3,[dir=rtl] .keys .ok{font-family:"IBM Plex Sans Arabic",var(--f-disp);letter-spacing:0}
 </style>
 </head>
 <body>
@@ -243,6 +258,7 @@ svg,.ph,.pad,.arrows,.step,.lang{direction:ltr}
   </div>
 </section>
 </main>
+<div class="modal" id="kmodal" hidden data-noi18n><div class="kpad" role="dialog" aria-modal="true" aria-labelledby="kpt"><h3 id="kpt"></h3><p class="why" id="kpwhy"></p><div class="disp" id="kpdisp">0</div><div class="rng" id="kprng"></div><div class="err" id="kperr"></div><div class="keys" id="kpkeys"></div></div></div>
 <footer>© 2026 Bekir Yenigün · Tüm hakları saklıdır<br>İletişim ve destek: bekir.yenigun@gmail.com</footer>
 
 <script>
@@ -547,6 +563,37 @@ document.querySelectorAll(".arrows button[data-st]").forEach(b=>b.innerHTML=ARW(
 A.pos=D.p0;
 drawK(); dPanel(); requestAnimationFrame(tick);
 if("serviceWorker" in navigator && location.protocol==="https:") navigator.serviceWorker.register("sw.js").catch(()=>{});
+
+// ---------- keypad: tap a value to type it ----------
+let KE=null, kbuf="";
+function kpOpen(k){
+  const row=document.querySelector(`[data-k="${k}"]`).closest(".row"), nm=row.querySelector(".nm"), sm=nm.querySelector("small");
+  const title=[...nm.childNodes].filter(n=>n.nodeType===3).map(n=>n.nodeValue).join("").trim();
+  const r=k==="tk"?[60,200,"°C",0]:DR[k], cur=k==="tk"?K.tk:D[k];
+  KE={k,mn:r[0],mx:r[1],dec:r[3]}; kbuf="";
+  $("#kpt").textContent=title; $("#kpwhy").textContent=sm?sm.textContent:""; $("#kpwhy").hidden=!sm;
+  $("#kpdisp").textContent=r[3]?Number(cur).toFixed(r[3]):cur;
+  $("#kprng").textContent=`${L("Aralık","Range","النطاق")} ${r[0]} – ${r[1]} ${r[2]}`;
+  $("#kperr").textContent="";
+  const KEYS=["7","8","9","←","4","5","6","C","1","2","3","cancel","0",".","","ok"];
+  $("#kpkeys").innerHTML=KEYS.map(x=>x===""?"<span></span>":`<button class="${x==="ok"?"ok":""}" data-kk="${x}">${x==="ok"?L("TAMAM","OK","موافق"):x==="cancel"?L("İPTAL","CANCEL","إلغاء"):x}</button>`).join("");
+  $("#kmodal").hidden=false;
+}
+$("#kpkeys").addEventListener("click",e=>{
+  const b=e.target.closest("[data-kk]"); if(!b) return; const x=b.dataset.kk;
+  if(x==="cancel"){ $("#kmodal").hidden=true; return; }
+  if(x==="C") kbuf=""; else if(x==="←") kbuf=kbuf.slice(0,-1);
+  else if(x==="ok"){ if(kbuf===""){ $("#kmodal").hidden=true; return; } const v=parseFloat(kbuf);
+    if(isNaN(v)||v<KE.mn||v>KE.mx){ $("#kperr").textContent=L(`Değer ${KE.mn} ile ${KE.mx} arasında olmalı.`,`The value must be between ${KE.mn} and ${KE.mx}.`,`يجب أن تكون القيمة بين ${KE.mn} و ${KE.mx}.`); return; }
+    const val=Math.round(v*10**KE.dec)/10**KE.dec;
+    if(KE.k==="tk"){ K.tk=val; CUT=null; drawK(); } else { D[KE.k]=val; dPanel(); }
+    $("#kmodal").hidden=true; return; }
+  else if(kbuf.length<6&&!(x==="."&&(kbuf.includes(".")||!KE.dec))) kbuf+=x;
+  $("#kpdisp").textContent=kbuf||"0";
+});
+$("#kmodal").addEventListener("click",e=>{ if(e.target.id==="kmodal") $("#kmodal").hidden=true; });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") $("#kmodal").hidden=true; });
+document.addEventListener("click",e=>{ const v=e.target.closest(".step .v"); if(!v) return; const st=v.closest("[data-k]"); if(st&&!st.closest(".row.lock")) kpOpen(st.dataset.k); });
 function onLang(){ mkEnds(); kRunTxt(); i18nStatic(); drawK(); dPanel(); $("#run").textContent=A.run?L("DURDUR","STOP","إيقاف"):L("BAŞLAT","START","تشغيل"); $("#slow").textContent=A.speed===1?"1x":A.speed===0.25?L("¼ yavaş","¼ slow","¼ بطيء"):L("1/10 yavaş","1/10 slow","1/10 بطيء"); }
 onLang();
 </script>
