@@ -1,7 +1,7 @@
 {
   "name": "Termoform Öğreniyorum",
   "short_name": "Termoform",
-  "description": "Termoform makinesi çevrim ayarlarını sanal makinede oynayarak öğren.",
+  "description": "Termoform makinesi çevrim ayarlarını sanal makinede test ederek öğren.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
