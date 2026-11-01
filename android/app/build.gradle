@@ -18,7 +18,7 @@ android {
         targetSdk 36
         versionCode runNo
         versionName "1.0.${runNo}"
-        buildConfigField 'String', 'WEB_URL', "\"https://${ghOwner}.github.io/${ghRepo}/\""
+        buildConfigField 'String', 'WEB_URL', "\"https://${ghOwner}.github.io/${ghRepo}/app/\""
     }
 
     buildFeatures { buildConfig true }

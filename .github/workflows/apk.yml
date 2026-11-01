@@ -26,7 +26,7 @@ jobs:
       - name: Put the page inside the app (offline copy)
         run: |
           mkdir -p android/app/src/main/assets
-          cp docs/index.html android/app/src/main/assets/index.html
+          cp docs/app/index.html android/app/src/main/assets/index.html
 
       - name: Signing key
         env:

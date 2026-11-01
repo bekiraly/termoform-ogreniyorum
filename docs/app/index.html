@@ -1,0 +1,747 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#12191e">
+<title>Termoform Öğreniyorum</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: settings table on the left, live machine view, period channel and event log on the right, run bar at the bottom. One dark panel look. */
+:root{
+  --bg:#12191e; --panel:#1a242b; --panel2:#212e36; --line:#2e3d47;
+  --fg:#e2eaee; --muted:#8ea3ae; --value:#8fd8e6; --accent:#f2a531; --accentInk:#1b1306;
+  --ok:#5fcf8f; --bad:#ef5d4d; --warn:#f2c94c; --heat:#e8573b; --sheet:#b9e3f0;
+  --f-disp:"Chakra Petch","Segoe UI",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:14px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px;box-sizing:border-box}
+*{box-sizing:border-box}
+button{font-family:inherit;color:inherit;cursor:pointer}
+button:focus-visible,.cell:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);grid-template-rows:auto minmax(0,1fr) auto;gap:10px;max-width:1500px;margin:0 auto;min-height:100%}
+.top{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px 14px}
+.brand{font-family:var(--f-disp);font-weight:700;font-size:20px;letter-spacing:.06em}
+.brand span{color:var(--accent)}
+.pagename{font-family:var(--f-disp);font-size:16px;letter-spacing:.05em;color:var(--muted)}
+.alarm{flex:1;min-width:200px;font-family:var(--f-mono);font-size:13px;padding:5px 10px;border-radius:4px;background:#0f1519;color:var(--ok);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.alarm.bad{color:var(--bad);animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:.55}}
+.chip{font-family:var(--f-disp);font-size:12px;letter-spacing:.08em;padding:4px 9px;border-radius:3px;border:1px solid var(--line);color:var(--muted)}
+.chip b{color:var(--accent);font-weight:600}
+.page{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px;min-width:0;overflow:auto}
+.side{display:flex;flex-direction:column;gap:10px;min-width:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px;min-width:0}
+h2{font-family:var(--f-disp);font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 8px;font-weight:600}
+.run{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px 12px}
+.btn{background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:9px 14px;font-family:var(--f-disp);font-size:13px;letter-spacing:.08em}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accentInk);font-weight:700}
+.btn.stop{border-color:var(--bad);color:var(--bad)}
+.btn.sel{border-color:var(--value);color:var(--value)}
+.counters{margin-left:auto;display:flex;gap:16px;font-family:var(--f-mono);font-size:13px;font-variant-numeric:tabular-nums}
+.counters .g{color:var(--ok)} .counters .r{color:var(--bad)}
+/* cycle table */
+.ctab{width:100%;border-collapse:separate;border-spacing:0 5px;font-variant-numeric:tabular-nums}
+.ctab th{font-family:var(--f-disp);font-size:11px;letter-spacing:.1em;color:var(--muted);font-weight:500;text-align:center;padding:0 4px}
+.ctab th:first-child{text-align:left}
+.ctab td{padding:0 4px}
+.ctab .nm{font-family:var(--f-disp);font-size:14px;letter-spacing:.04em;padding:8px 10px;background:var(--panel2);border-radius:4px 0 0 4px;white-space:nowrap}
+.cell{display:block;width:100%;min-width:62px;font-family:var(--f-mono);font-size:15px;padding:7px 6px;text-align:center;background:#0f1519;border:1px solid var(--line);border-radius:4px;color:var(--value)}
+.cell.ro{color:var(--warn);background:transparent;cursor:default}
+.cell.tot{color:var(--fg);background:#0f1519}
+.cell.over{background:#5a1d1a;border-color:var(--bad);color:#fff;font-weight:500}
+.cell:hover:not(.ro){border-color:var(--value)}
+.tog{width:52px;height:26px;border-radius:13px;border:1px solid var(--line);background:#0f1519;position:relative}
+.tog::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--muted);transition:left .15s}
+.tog.on{background:#1f3b2c;border-color:var(--ok)}
+.tog.on::after{left:29px;background:var(--ok)}
+.sep td{padding-top:8px}
+.hint{font-size:12px;color:var(--muted);margin:8px 2px 0;line-height:1.45}
+/* period channel + event table */
+svg text{font-family:var(--f-mono)}
+.chan{position:relative;height:46px;background:#2a3238;border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-top:42px}
+.chan .fill{position:absolute;inset:0 auto 0 0;width:0;background:linear-gradient(90deg,#2f8f5c,#47b878)}
+.chan .now{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-family:var(--f-mono);font-size:18px;font-weight:500;color:#fff;background:#0f1519cc;padding:2px 8px;border-radius:4px;font-variant-numeric:tabular-nums;z-index:2}
+.marks{position:absolute;inset:0}
+.mk{position:absolute;top:0;bottom:0;width:2px;background:#e2eaee;opacity:.75}
+.mk.bad{background:var(--bad);opacity:1;width:3px}
+.mk.mold{background:var(--warn);opacity:1}
+.mk span{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);font-family:var(--f-mono);font-size:10px;color:var(--muted);white-space:nowrap}
+.chan{overflow:visible}
+.mk.lo span{top:calc(100% + 4px);bottom:auto}
+.scale{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:10px;color:var(--muted);margin:40px 0 8px}
+.ev{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+.ev th{font-family:var(--f-disp);font-size:11px;letter-spacing:.08em;color:var(--muted);font-weight:500;text-align:left;padding:4px 6px;border-bottom:1px solid var(--line)}
+.ev td{padding:6px;border-bottom:1px solid #26333b;vertical-align:top}
+.ev td.num{font-family:var(--f-mono);color:var(--value);white-space:nowrap}
+.ev tr.act td{background:#1f3b2c}
+.ev tr.act td:first-child{box-shadow:inset 3px 0 var(--ok)}
+.ev tr.bad td:first-child{box-shadow:inset 3px 0 var(--bad)}
+.ev tr.bad .st{color:var(--bad)}
+.ev tr.off td{opacity:.45}
+.ev .st{font-size:12px;color:var(--muted)}
+.ev tr.mold td{color:var(--warn)}
+.heatnote{font-size:12px;color:var(--muted);background:var(--panel2);border-radius:4px;padding:7px 9px;margin-top:8px}
+.mach{width:100%;height:330px;display:block;background:#0e1418;border-radius:4px}
+.log{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;max-height:210px;overflow:auto}
+.log li{font-size:13px;line-height:1.45;padding:7px 9px;border-radius:4px;background:var(--panel2);border-left:3px solid var(--ok)}
+.log li.bad{border-left-color:var(--bad)}
+.log li b{font-family:var(--f-disp);letter-spacing:.03em}
+.log li small{display:block;color:var(--muted);margin-top:2px}
+/* keypad */
+.modal{position:fixed;inset:0;background:rgba(5,9,12,.72);display:grid;place-items:center;padding:16px;z-index:20}
+.pad{width:min(420px,100%);background:var(--panel);border:1px solid var(--accent);border-radius:8px;padding:14px}
+.pad h3{font-family:var(--f-disp);margin:0 0 4px;font-size:17px;letter-spacing:.04em}
+.pad .why{font-size:13px;color:var(--muted);line-height:1.5;margin:0 0 10px;max-width:65ch}
+.pad .disp{font-family:var(--f-mono);font-size:28px;text-align:right;padding:8px 12px;background:#0f1519;border:1px solid var(--line);border-radius:4px;color:var(--value);margin-bottom:6px}
+.pad .rng{font-size:12px;color:var(--muted);margin-bottom:10px;font-family:var(--f-mono)}
+.keys{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.keys button{padding:13px 0;font-family:var(--f-mono);font-size:18px;background:var(--panel2);border:1px solid var(--line);border-radius:5px}
+.keys .ok{background:var(--accent);color:var(--accentInk);border-color:var(--accent);font-family:var(--f-disp);font-weight:700;font-size:15px}
+.err{color:var(--bad);font-size:12px;min-height:16px;margin-bottom:6px}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:11px;color:var(--muted);margin-top:6px}
+@media (max-width:1000px){
+  .app{grid-template-columns:minmax(0,1fr)}
+      .top,.run{grid-column:auto}
+  .counters{margin-left:0}
+}
+@media (max-width:600px){
+  .app{gap:8px}
+  .top{gap:6px 10px;padding:8px 10px}
+  .brand{font-size:17px}
+  .pagename{font-size:12px}
+  .alarm{order:5;flex-basis:100%;min-width:0}
+  .chip{font-size:10px;padding:3px 7px}
+  .page{padding:8px}
+  .card{padding:8px}
+  .ctab{border-spacing:0 4px}
+  .ctab th{font-size:9px;letter-spacing:.03em;padding:0 2px}
+  .ctab td{padding:0 2px}
+  .ctab .nm{font-size:11px;padding:7px 6px;white-space:normal;line-height:1.2}
+  .ctab .hint{font-size:10px}
+  .cell{min-width:0;font-size:13px;padding:8px 2px}
+  .tog{width:38px;height:22px}
+  .tog::after{width:14px;height:14px}
+  .tog.on::after{left:19px}
+  .run{position:sticky;bottom:0;z-index:5;gap:6px;padding:8px;box-shadow:0 -8px 18px rgba(0,0,0,.55)}
+  .run .btn{padding:8px 9px;font-size:11px;letter-spacing:.04em}
+  .run>.hint{display:none}
+  .counters{flex-basis:100%;justify-content:space-between;font-size:12px}
+}
+@media (prefers-reduced-motion:reduce){.alarm.bad{animation:none}}
+</style><style>
+/* language switch, collapsible log, right-to-left (Arabic) */
+.lang{display:flex;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.lang button{background:none;border:0;padding:4px 9px;font-family:var(--f-disp);font-size:12px;color:var(--muted)}
+.lang button.on{background:var(--accent);color:var(--accentInk);font-weight:700}
+details.card>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px}
+details.card>summary::-webkit-details-marker{display:none}
+details.card>summary h2{margin:0}
+details.card>summary::after{content:"▾";color:var(--muted);margin-inline-start:auto;transition:transform .15s}
+details.card[open]>summary::after{transform:rotate(180deg)}
+details.card[open]>summary{margin-bottom:8px}
+.logcount{font-family:var(--f-mono);font-size:11px;color:var(--muted);background:var(--panel2);border-radius:10px;padding:1px 8px}
+.logcount.bad{color:var(--bad)}
+.chan,.scale,.mach,.cell,.num,.disp,.counters b,.keys{direction:ltr;unicode-bidi:isolate}
+.chan .now{unicode-bidi:plaintext}
+[dir=rtl] body{font-family:"IBM Plex Sans Arabic",var(--f-body)}
+[dir=rtl] .brand,[dir=rtl] h2,[dir=rtl] .pagename,[dir=rtl] .btn,[dir=rtl] .chip,[dir=rtl] .ctab .nm,[dir=rtl] .ctab th,[dir=rtl] .ev th,[dir=rtl] .pad h3,[dir=rtl] .log li b{font-family:"IBM Plex Sans Arabic",var(--f-disp);letter-spacing:0}
+[dir=rtl] .counters{margin-left:0;margin-right:auto}
+[dir=rtl] .ctab th:first-child,[dir=rtl] .ev th{text-align:right}
+[dir=rtl] .ctab .nm{border-radius:0 4px 4px 0}
+[dir=rtl] .log li{border-left:0;border-right:3px solid var(--ok)}
+[dir=rtl] .log li.bad{border-right-color:var(--bad)}
+[dir=rtl] .ev tr.act td:first-child{box-shadow:inset -3px 0 var(--ok)}
+[dir=rtl] .ev tr.bad td:first-child{box-shadow:inset -3px 0 var(--bad)}
+[dir=rtl] .alarm{font-family:"IBM Plex Sans Arabic",var(--f-mono)}
+@media (max-width:1000px){[dir=rtl] .counters{margin-right:0}}
+</style>
+
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand"><span id="b1">TERMOFORM</span> <span id="b2" style="color:var(--accent)">ÖĞRENİYORUM</span></div>
+    <div class="pagename" id="pagename"></div>
+    <div class="lang" id="lang" role="group" aria-label="Dil / Language / اللغة">
+      <button data-lang="tr">TR</button><button data-lang="en">EN</button><button data-lang="ar">ع</button>
+    </div>
+    <div class="alarm" id="alarm"></div>
+    <div class="chip"><span data-t="level"></span> <b data-t="levelV"></b></div>
+    <div class="chip"><span data-t="recipe"></span> <b data-t="recipeV"></b></div>
+  </header>
+
+  <main class="page" id="page"></main>
+
+  <section class="side">
+    <div class="card">
+      <h2 data-t="station"></h2>
+      <svg class="mach" id="mach" viewBox="130 0 470 330" role="img"></svg>
+    </div>
+    <div class="card">
+      <h2 data-t="channel"></h2>
+      <div class="chan" id="chan"><div class="fill" id="fill"></div><div class="now" id="now">0.00</div><div class="marks" id="marks"></div></div>
+      <div class="scale" id="scale"></div>
+      <table class="ev" id="ev"></table>
+    </div>
+    <details class="card" id="logbox">
+      <summary><h2 data-t="log"></h2><span class="logcount" id="logcount">0</span></summary>
+      <ul class="log" id="log"></ul>
+    </details>
+  </section>
+
+  <footer class="run">
+    <button class="btn primary" id="oto"></button>
+    <span class="hint" style="margin:0" data-t="speed"></span>
+    <button class="btn sel" data-spd="1">1x</button>
+    <button class="btn" data-spd="0.25" data-t="slow4"></button>
+    <button class="btn" data-spd="0.1" data-t="slow10"></button>
+    <button class="btn" id="snd"></button>
+    <button class="btn" id="reset" data-t="reset"></button>
+    <div class="counters"><span><span data-t="cpm"></span> <b id="cpm">30.0</b></span><span class="g"><span data-t="good"></span> <b id="good">0</b></span><span class="r"><span data-t="bad"></span> <b id="badc">0</b></span></div>
+  </footer>
+</div>
+
+<div class="modal" id="modal" hidden>
+  <div class="pad" role="dialog" aria-modal="true" aria-labelledby="padt">
+    <h3 id="padt"></h3>
+    <p class="why" id="padwhy"></p>
+    <div class="disp" id="paddisp">0</div>
+    <div class="rng" id="padrng"></div>
+    <div class="err" id="paderr"></div>
+    <div class="keys" id="keys"></div>
+  </div>
+</div>
+
+<script>
+// ---------- recipe ----------
+const DEFAULTS = {
+  period:2.00,
+  chain:{s:0.59,d:0.68,on:true},
+  form:{s:1.38,d:0.35,on:true},
+  vac:{s:1.34,d:0.40,on:true},
+  blow:{s:0.40,d:0.15,on:true},
+  plug:{s:1.29,d:0.70,on:true},
+  pot:{s:0.25,d:1.10,on:true},
+  moldClose:0.78
+};
+let R = JSON.parse(JSON.stringify(DEFAULTS));
+const RANGE = {period:[1.2,4], chain:[0,3], form:[0,3], vac:[0,3], blow:[0,3], plug:[0,3], pot:[0,3], moldClose:[0.2,3]};
+const n2 = v => v.toFixed(2);
+
+// ---------- texts: Turkish, English, Arabic ----------
+// Each fault: t = title, w(p) = what happened, x(p) = how to fix. p holds the numbers.
+const I18N = {
+tr:{
+  dir:"ltr", u:"s", b1:"TERMOFORM", b2:"ÖĞRENİYORUM", page:"ÇEVRİM AYARLARI",
+  ready:"Makine hazır. OTO ile üretimi başlat.", okIdle:"Ayarlar uygun. OTO ile üretimi başlat.", okRun:"Üretim normal. Ürünler sağlam.",
+  level:"SEVİYE", levelV:"ÇIRAK", recipe:"REÇETE", recipeV:"1000CC KAP · PET 0.26",
+  station:"Şekilleme istasyonu · canlı", channel:"Periyot kanalı", log:"Olaylar ve açıklamalar",
+  auto:"OTO BAŞLAT", stop:"STOP", speed:"Hız:", slow4:"¼ yavaş", slow10:"1/10 yavaş", sound:"SES", on:"AÇIK", off:"KAPALI",
+  reset:"FABRİKA REÇETESİ", cpm:"Çevrim/dk", good:"Sağlam", bad:"Hatalı",
+  thFunc:"Fonksiyon", thStart:"Başlangıç (s)", thDur:"İşlem (s)", thTot:"Toplam (s)", thOn:"Aktif",
+  rowPeriod:"PERYOT SÜRE", perMin:"/dk", rowMold:"ŞEKİLLEME KALIP", colOpen:"Açılma", colClose:"Kapanma", colTime:"Zaman",
+  rows:{chain:"ZİNCİR", form:"FORM HAVA", vac:"VAKUM", blow:"GERİ ÜFLEME", plug:"ÜST TAMPON", pot:"ALT TAMPON"},
+  autoLbl:"otomatik", autoTitle:"Otomatik hesaplanır", togAria:"aç/kapa", totOver:"Toplam işlem süresi peryodu aşıyor", totOk:"Başlangıç + işlem",
+  hint:(o,c,e)=>`Bir değere dokun: tuş takımı ve o ayarın ne işe yaradığı açılır. Kalıp kapanma başlangıcına kadar açılır ve aynı sürede kapanır. Zaman sütunu kalıbın tam kapandığı andır (kapanma başlangıcı x 2), peryottan küçük olmalı. Zincirin işlem süresi otomatik hesaplanır. Bu ayarlarla zincir en erken ${o} s'de çekebilir (kalıp %75 açık), levha ${c} s'de sıkışır (kalıp %75 kapalı), kalıp ${e} s'de tam kapanır.`,
+  heat:"Not: Levhanın yeterince ısındığından emin ol. Bu simülasyonda levha her zaman doğru ısıda kabul ediliyor.",
+  subS:" · başlangıç", subD:" · işlem süresi", range:"Aralık", rangeErr:(a,b)=>`Değer ${a} ile ${b} arasında olmalı.`, kCancel:"İPTAL", kOk:"TAMAM",
+  fix:"Çözüm:", resetT:"Fabrika reçetesi yüklendi", resetW:"Tüm değerler başlangıç ayarına döndü.",
+  welcomeT:"Hoş geldin, operatör", welcomeW:"Makine fabrika reçetesiyle hazır. OTO'ya bas ve üretimi izle. Sonra bir değeri değiştirip ne olduğunu gör. Örneğin form hava başlangıcını 1.38'den 1.10'a al.",
+  goodT:"Ürün sağlam", goodW:"Ürün kalıptan temiz çıktı, kalıp kapandıktan sonra tampon indi, ardından vakum ve form hava devreye girdi. Sıralama doğru.",
+  evOpen:"Kalıp açılır", evClose:"Kalıp kapanır",
+  ev:{chain:"Zincir levhayı 1 hatve çeker", form:"Form hava basar", vac:"Vakum çeker", blow:"Geri üfleme ürünü ayırır", plug:"Üst tampon iner", pot:"Pot çemberi ürünü dışarı iter"},
+  mkClamp:"sıkıştı", mkClosed:"kapandı", thEvent:"Olay", thBeg:"Başlar", thEnd:"Biter", thSt:"Durum", stOff:"Kapalı", stRun:"ÇALIŞIYOR", stWait:"bekliyor", stDone:"tamam",
+  svgAria:"Şekilleme istasyonunun yandan görünümü", upper:"ÜST KALIP", lower:"ALT KALIP", foldLbl:"katlanma / gerilme", thickLbl:"üst bölge kalın · taban ince", stuckLbl:"ürün kalıpta kaldı, levha yırtıldı",
+  live:{form:"FORM HAVA", vac:"VAKUM", blow:"GERİ ÜFLEME", plug:"ÜST TAMPON", pot:"POT ÇEMBERİ", chain:"ZİNCİR ▶", closed:"KALIP KAPALI"}, goodP:"SAĞLAM ÜRÜN", badP:"HATALI ÜRÜN",
+  info:{
+    period:["Peryot süre","Bir çevrimin toplam süresi. 60 / peryot = dakikadaki çevrim. Kısaltırsan üretim artar ama kalıbın açılıp kapanmasına, levhanın ısınmasına ve ürünün soğumasına daha az zaman kalır."],
+    chain:["Zincir","Levhayı bir hatve ileri taşır. Kalıp tamamen açılmadan başlarsa zincir ile kalıp çakışır: kalıp kapalıyken zincir levhayı çekmeye çalışır. Kalıp kapanmadan bitmelidir. İşlem süresi zincir servosundan otomatik hesaplanır, değiştirilemez."],
+    form:["Form hava","Levhayı üstten basınçla kalıba bastırır. Kalıp kapanıp levha alt ve üst kalıp arasında sıkışmadan basarsa hava kaçar, levha kayar ve katlanır. Yeterince uzun sürmezse köşeler dolmaz."],
+    vac:["Vakum","Alt kalıp içinde oluşan havayı tahliye eder ve levhayı kalıbın içine sıkıştırır, şekillemeye yardımcı olur. Kalıp kapanmadan başlarsa levhayı kenarlardan çeker, kenarda buruşma olur."],
+    blow:["Geri üfleme","Kalıp açılırken alttan hava vererek ürünü kalıptan ayırır. Kalıp açılırken başlamalı, zincir çekmeden ve kalıp kapanmaya başlamadan bitmelidir. Erken başlarsa ürün soğumadan kalıptan ayrılır, taban ve duvarlar ezik büzük çıkar. Geç kalırsa ürün kalıptan çıkmaz ve çekme yapar. Çok uzun sürerse levhayı kalıp kapanmadan soğutur, büzüştürür ve katlanma olur."],
+    plug:["Üst tampon","Levhayı kalıbın içine doğru iterek malzemeyi aşağı taşır ve et kalınlığını dağıtır. Kalıp kapanmadan inerse levhayı çeker ve gerer. Form havadan sonra inerse ürünün üst bölgeleri kalın, tabanları ince olur."],
+    pot:["Alt tampon (pot çemberi)","Asıl görevi, kalıp açılırken şekillenmiş ürünü kalıbın içinden dışarı itmektir. Zincir çekmeden önce kalkmalıdır, yoksa ürün kalıpta kalır."],
+    moldClose:["Kalıp kapanma başlangıcı","Kalıbın kapanmaya başladığı an. Kalıp bu ana kadar açılır, sonra aynı sürede kapanır: 0.60 yazarsan 0.60'ta açık, 1.20'de kapalıdır. Değiştirirsen zincir, tampon, vakum ve form hava zamanlarını da kaydırman gerekir."]
+  },
+  f:{
+    moldOver:{t:"Kalıp süresi peryodu aşıyor", w:p=>`Açılma ${p.o} s + kapanma ${p.c} s = ${p.s} s. Peryot ${p.P} s.`, x:()=>"Kapanma başlangıcını öne al ya da peryodu uzat."},
+    moldLate:{t:"Kalıp çevrim bitmeden kapanamıyor", w:p=>`Kalıp ${p.ce} s'de kapanıyor, çevrim ${p.P} s'de bitiyor.`, x:()=>"Kapanma başlangıcını öne al."},
+    chainHit:{t:"Zincir ve kalıp çakışması", w:p=>`Zincir ${p.cs} s'de çekmeye başladı ama kalıp ${p.ok} s'de ancak %75 açılıyor (tam açılma ${p.to} s). Kalıp kapalıyken zincir levhayı çekmeye çalıştı: levha ve ürünler kalıba takılıp yırtıldı.`, x:p=>`Zincir başlangıcını kalıp en az %75 açıldıktan sonraya al (bu reçetede en erken ${p.ok} s).`},
+    potOff:{t:"Pot çemberi kapalı", w:()=>"Ürün kalıptan dışarı itilmedi, kalıpta kaldı. Zincir çekince ürün yırtıldı.", x:()=>"Alt tamponu (pot çemberi) aç."},
+    potLate:{t:"Pot çemberi geç kalktı", w:p=>`Çember ${p.ps} s'de kalkıyor, zincir ${p.cs} s'de çekiyor. Ürün kalıptan çıkmadan levha çekildi.`, x:()=>"Pot çemberini kalıp açılırken kaldır."},
+    potOver:{t:"Alt tampon işlem süresi peryodu aşıyor", w:p=>`Pot çemberi ${p.s} + ${p.d} = ${p.e} s'ye kadar yukarıda kalıyor, peryot ${p.P} s. Kalıp kapanırken çember hâlâ yukarıdaydı: levha kalıba oturmadı, ürün şekil almadı.`, x:p=>`Pot çemberi süresini kısalt: başlangıç + süre ${p.P} s'yi geçmesin.`},
+    blowOff:{t:"Geri üfleme kapalı", w:()=>"Ürün kalıba yapışık kaldı, kalıptan çıkmadı ve çekme yaptı.", x:()=>"Geri üflemeyi aç."},
+    blowEarly:{t:"Geri üfleme kalıp açılmadan başladı", w:p=>`Geri üfleme ${p.bs} s'de başladı, kalıp henüz açılmamıştı ve ürün hâlâ kalıpta soğuyordu. Ürün soğumadan kalıptan ayrıldı: taban ve yan duvarlar ezik büzük çıktı.`, x:()=>"Geri üflemeyi kalıp açılırken başlat, vakum ve form hava bittikten sonra."},
+    blowLong:{t:"Geri üfleme süresi çok uzun", w:p=>`Geri üfleme ${p.be} s'ye kadar sürüyor, kalıp ${p.mc} s'de kapanmaya başlıyor. Hava levhayı kalıp kapanmadan soğuttu ve büzüştürdü. Soğuk levha şekil almadı, içeride iki kat katlandı.`, x:()=>"Geri üfleme süresini kısalt, kalıp kapanmaya başlamadan bitsin."},
+    blowLate:{t:"Geri üfleme geç kaldı", w:p=>`Geri üfleme ${p.bs}-${p.be} s arasında. Kalıp ${p.to} s'de açılıyor, zincir ${p.cs} s'de çekiyor. Ürün kalıptan çıkmadı ve çekme yaptı.`, x:()=>"Geri üflemeyi kalıp açılırken ve zincir çekmeden önce bitecek şekilde ayarla."},
+    chainClamp:{t:"Levha hareket ederken sıkıştırıldı", w:p=>`Zincir ${p.ce} s'ye kadar çekiyor, kalıp ${p.cl} s'de kapandı. Levha yırtıldı.`, x:()=>"Zincir başlangıcını öne al veya kalıbın kapanmasını geciktir."},
+    plugOver:{t:"Üst tampon işlem süresi peryodu aşıyor", w:p=>`Tampon ${p.s} + ${p.d} = ${p.e} s'ye kadar aşağıda kalıyor, peryot ${p.P} s. Kalıp açılırken tampon hâlâ ürünün içindeydi: ürün ezildi, deforme oldu.`, x:p=>`Tampon süresini kısalt: başlangıç + süre ${p.P} s'yi geçmesin.`},
+    plugEarly:{t:"Üst tampon erken indi", w:p=>`Tampon ${p.ps} s'de indi, kalıp ${p.cl} s'de kapandı. Kalıp levhayı tutmadığı için tampon levhayı gerdi: et kalınlığı inceldi, katlanma oldu.`, x:()=>"Üst tampon başlangıcını kalıp kapandıktan sonraya al."},
+    plugLate:{t:"Üst tampon geç indi", w:()=>"Form hava ve vakum tampondan önce devreye girdi. Levha tampon inmeden kalıba yapıştı, malzeme aşağı taşınmadı: üst bölge kalın, taban ve köşeler ince.", x:()=>"Üst tamponu form havadan önce indir."},
+    plugOff:{t:"Üst tampon kapalı", w:()=>"Tampon inmedi, levhayı kalıbın içine taşımadı. Form hava ve vakum levhayı doğrudan kalıba yapıştırdı: malzeme üst bölgede kaldı, üst kenar ve duvarın üstü kalın, taban ve köşeler ince çıktı. Derin üründe taban delinebilir.", x:()=>"Üst tamponu aç ve form hava ile vakumdan önce indir."},
+    formEarly:{t:"Form hava erken bastı", w:p=>`Hava ${p.fs} s'de bastı, kalıp ${p.cl} s'de kapandı. Levha arada sıkışmadığı için hava kaçtı, levha sağa sola çekildi ve iki kat katlandı. Kilitli üründe kilitler kapanmaz.`, x:()=>"Form hava başlangıcını kalıp kapandıktan sonraya al."},
+    formShort:{t:"Form hava süresi kısa", w:p=>`${p.d} s yetmedi. Köşeler ve taban detayı dolmadı.`, x:()=>"Form hava süresini uzat."},
+    formOver:{t:"Form hava işlem süresi peryodu aşıyor", w:p=>`Form hava ${p.s} + ${p.d} = ${p.e} s'ye kadar sürüyor, peryot ${p.P} s. Kalıp açıldıktan sonra ${p.x} s daha hava bastı: geri üflemeyle çakıştı, ürün kalıptan çıkarken deforme oldu.`, x:p=>`Form hava süresini kısalt: başlangıç + süre ${p.P} s'yi geçmesin.`},
+    formOff:{t:"Form hava kapalı", w:()=>"Levha kalıba basınçla bastırılmadı. Ürün şekil almadı.", x:()=>"Form havayı aç."},
+    vacEarly:{t:"Vakum erken başladı", w:p=>`Vakum ${p.vs} s'de başladı, kalıp ${p.cl} s'de kapandı. Levha arada sıkışmadığı için vakum levhayı kenarlardan çekti, kenarda buruşma oldu.`, x:()=>"Vakumu kalıp kapandıktan sonra başlat."},
+    vacOver:{t:"Vakum işlem süresi peryodu aşıyor", w:p=>`Vakum ${p.s} + ${p.d} = ${p.e} s'ye kadar sürüyor, peryot ${p.P} s. Kalıp açılırken vakum ürünü kalıpta tuttu, geri üfleme ve pot çemberi ürünü çıkaramadı.`, x:p=>`Vakum süresini kısalt: başlangıç + süre ${p.P} s'yi geçmesin.`},
+    vacShort:{t:"Vakum süresi kısa", w:()=>"Kalıp içindeki hava tam tahliye edilmedi, levha kalıba tam oturmadı, tabanda hava kabarcığı kaldı.", x:()=>"Vakum süresini uzat."}
+  }
+},
+en:{
+  dir:"ltr", u:"s", b1:"THERMOFORM", b2:"TRAINER", page:"CYCLE SETTINGS",
+  ready:"Machine ready. Press AUTO to start production.", okIdle:"Settings OK. Press AUTO to start production.", okRun:"Production normal. Parts are good.",
+  level:"LEVEL", levelV:"APPRENTICE", recipe:"RECIPE", recipeV:"1000CC CUP · PET 0.26",
+  station:"Forming station · live", channel:"Period channel", log:"Events and explanations",
+  auto:"AUTO START", stop:"STOP", speed:"Speed:", slow4:"¼ slow", slow10:"1/10 slow", sound:"SOUND", on:"ON", off:"OFF",
+  reset:"FACTORY RECIPE", cpm:"Cycles/min", good:"Good", bad:"Faulty",
+  thFunc:"Function", thStart:"Start (s)", thDur:"Duration (s)", thTot:"Total (s)", thOn:"Active",
+  rowPeriod:"PERIOD", perMin:"/min", rowMold:"FORMING MOLD", colOpen:"Opening", colClose:"Closing", colTime:"Time",
+  rows:{chain:"CHAIN", form:"FORMING AIR", vac:"VACUUM", blow:"BLOW-BACK", plug:"UPPER PLUG", pot:"POT RING"},
+  autoLbl:"automatic", autoTitle:"Calculated automatically", togAria:"on/off", totOver:"Total time exceeds the period", totOk:"Start + duration",
+  hint:(o,c,e)=>`Tap a value: the keypad opens with an explanation of that setting. The mold opens until the closing start and closes in the same time. The Time column is the moment the mold is fully closed (closing start x 2) and must be shorter than the period. The chain duration is calculated automatically. With these settings the chain can pull at ${o} s at the earliest (mold 75% open), the sheet is clamped at ${c} s (mold 75% closed) and the mold is fully closed at ${e} s.`,
+  heat:"Note: make sure the sheet is heated enough. In this simulation the sheet is always at the right temperature.",
+  subS:" · start", subD:" · duration", range:"Range", rangeErr:(a,b)=>`The value must be between ${a} and ${b}.`, kCancel:"CANCEL", kOk:"OK",
+  fix:"Fix:", resetT:"Factory recipe loaded", resetW:"All values are back to their starting settings.",
+  welcomeT:"Welcome, operator", welcomeW:"The machine is ready with the factory recipe. Press AUTO and watch production. Then change a value and see what happens. For example, move the forming air start from 1.38 to 1.10.",
+  goodT:"Good part", goodW:"The part left the mold cleanly. The plug came down after the mold closed, then vacuum and forming air came on. The sequence is right.",
+  evOpen:"Mold opens", evClose:"Mold closes",
+  ev:{chain:"Chain pulls the sheet 1 pitch", form:"Forming air presses", vac:"Vacuum pulls", blow:"Blow-back releases the part", plug:"Upper plug comes down", pot:"Pot ring pushes the part out"},
+  mkClamp:"clamped", mkClosed:"closed", thEvent:"Event", thBeg:"Starts", thEnd:"Ends", thSt:"Status", stOff:"Off", stRun:"RUNNING", stWait:"waiting", stDone:"done",
+  svgAria:"Side view of the forming station", upper:"UPPER MOLD", lower:"LOWER MOLD", foldLbl:"fold / stretch", thickLbl:"thick top · thin base", stuckLbl:"part stuck in the mold, sheet torn",
+  live:{form:"FORMING AIR", vac:"VACUUM", blow:"BLOW-BACK", plug:"UPPER PLUG", pot:"POT RING", chain:"CHAIN ▶", closed:"MOLD CLOSED"}, goodP:"GOOD PART", badP:"FAULTY PART",
+  info:{
+    period:["Period","The total time of one cycle. 60 / period = cycles per minute. Shorten it and output goes up, but there is less time for the mold to open and close, for the sheet to heat and for the part to cool."],
+    chain:["Chain","Moves the sheet forward by one pitch. If it starts before the mold is open, the chain and the mold collide: the chain tries to pull the sheet while the mold is still closed. It must finish before the mold closes. Its duration comes from the chain servo automatically and cannot be changed."],
+    form:["Forming air","Presses the sheet into the mold with air pressure from above. If it blows before the mold closes and clamps the sheet between the upper and lower mold, the air escapes, the sheet slips and folds. If it is too short, the corners do not fill."],
+    vac:["Vacuum","Evacuates the air inside the lower mold and pulls the sheet into the mold, helping it take shape. If it starts before the mold closes, it pulls the sheet in from the edges and the edges wrinkle."],
+    blow:["Blow-back","Blows air from below while the mold opens to release the part from the mold. It must start while the mold is opening and end before the chain pulls and before the mold starts closing. Too early: the part leaves the mold before it cools, and the base and walls come out crumpled. Too late: the part stays in the mold and drags. Too long: it cools and shrinks the sheet before the mold closes, and the sheet folds."],
+    plug:["Upper plug","Pushes the sheet into the mold, carrying material down and spreading the wall thickness. If it comes down before the mold closes, it pulls and stretches the sheet. If it comes down after the forming air, the upper part of the product is thick and the base is thin."],
+    pot:["Pot ring (lower plug)","Its main job is to push the formed part out of the mold while the mold opens. It must rise before the chain pulls, or the part stays in the mold."],
+    moldClose:["Mold closing start","The moment the mold starts closing. The mold opens until this moment and then closes in the same time: enter 0.60 and it is open at 0.60 and closed at 1.20. If you change it, shift the chain, plug, vacuum and forming air times too."]
+  },
+  f:{
+    moldOver:{t:"Mold time exceeds the period", w:p=>`Opening ${p.o} s + closing ${p.c} s = ${p.s} s. Period ${p.P} s.`, x:()=>"Move the closing start earlier or make the period longer."},
+    moldLate:{t:"Mold cannot close before the cycle ends", w:p=>`The mold closes at ${p.ce} s, but the cycle ends at ${p.P} s.`, x:()=>"Move the closing start earlier."},
+    chainHit:{t:"Chain and mold collision", w:p=>`The chain started pulling at ${p.cs} s, but the mold is only 75% open at ${p.ok} s (fully open at ${p.to} s). The chain tried to pull the sheet while the mold was closed: the sheet and parts caught in the mold and tore.`, x:p=>`Start the chain after the mold is at least 75% open (in this recipe ${p.ok} s at the earliest).`},
+    potOff:{t:"Pot ring is off", w:()=>"The part was not pushed out and stayed in the mold. When the chain pulled, the part tore.", x:()=>"Turn the pot ring on."},
+    potLate:{t:"Pot ring rose too late", w:p=>`The ring rises at ${p.ps} s, but the chain pulls at ${p.cs} s. The sheet was pulled before the part left the mold.`, x:()=>"Raise the pot ring while the mold is opening."},
+    potOver:{t:"Pot ring time exceeds the period", w:p=>`The pot ring stays up until ${p.s} + ${p.d} = ${p.e} s, period ${p.P} s. The ring was still up while the mold closed: the sheet did not sit in the mold and the part did not take shape.`, x:p=>`Shorten the pot ring time: start + duration must not exceed ${p.P} s.`},
+    blowOff:{t:"Blow-back is off", w:()=>"The part stuck to the mold, did not come out and dragged.", x:()=>"Turn blow-back on."},
+    blowEarly:{t:"Blow-back started before the mold opened", w:p=>`Blow-back started at ${p.bs} s while the mold was still closed and the part was still cooling. The part left the mold before it cooled: the base and side walls came out crumpled.`, x:()=>"Start blow-back while the mold is opening, after vacuum and forming air have ended."},
+    blowLong:{t:"Blow-back runs too long", w:p=>`Blow-back runs until ${p.be} s, but the mold starts closing at ${p.mc} s. The air cooled and shrank the sheet before the mold closed. The cold sheet did not take shape and folded double.`, x:()=>"Shorten blow-back so it ends before the mold starts closing."},
+    blowLate:{t:"Blow-back is late", w:p=>`Blow-back runs ${p.bs}-${p.be} s. The mold is open at ${p.to} s and the chain pulls at ${p.cs} s. The part did not leave the mold and dragged.`, x:()=>"Set blow-back so it runs while the mold opens and ends before the chain pulls."},
+    chainClamp:{t:"Sheet clamped while moving", w:p=>`The chain pulls until ${p.ce} s, but the mold closed at ${p.cl} s. The sheet tore.`, x:()=>"Start the chain earlier or close the mold later."},
+    plugOver:{t:"Upper plug time exceeds the period", w:p=>`The plug stays down until ${p.s} + ${p.d} = ${p.e} s, period ${p.P} s. The plug was still inside the part while the mold opened: the part was crushed and deformed.`, x:p=>`Shorten the plug time: start + duration must not exceed ${p.P} s.`},
+    plugEarly:{t:"Upper plug came down too early", w:p=>`The plug came down at ${p.ps} s, but the mold closed at ${p.cl} s. The mold was not holding the sheet, so the plug stretched it: the wall got thin and folded.`, x:()=>"Start the upper plug after the mold has closed."},
+    plugLate:{t:"Upper plug came down too late", w:()=>"Forming air and vacuum came on before the plug. The sheet stuck to the mold before the plug came down and the material was not carried down: thick top, thin base and corners.", x:()=>"Bring the upper plug down before the forming air."},
+    plugOff:{t:"Upper plug is off", w:()=>"The plug did not come down and did not carry the sheet into the mold. Forming air and vacuum pressed the sheet straight onto the mold: the material stayed at the top, the rim and upper wall are thick, the base and corners thin. On deep parts the base can tear.", x:()=>"Turn the upper plug on and bring it down before forming air and vacuum."},
+    formEarly:{t:"Forming air blew too early", w:p=>`The air blew at ${p.fs} s, but the mold closed at ${p.cl} s. The sheet was not clamped, so the air escaped, the sheet was pulled sideways and folded double. Lock lids will not close.`, x:()=>"Start forming air after the mold has closed."},
+    formShort:{t:"Forming air too short", w:p=>`${p.d} s was not enough. The corners and base details did not fill.`, x:()=>"Make forming air longer."},
+    formOver:{t:"Forming air time exceeds the period", w:p=>`Forming air runs until ${p.s} + ${p.d} = ${p.e} s, period ${p.P} s. It kept blowing for ${p.x} s after the mold opened: it clashed with blow-back and the part deformed on its way out.`, x:p=>`Shorten forming air: start + duration must not exceed ${p.P} s.`},
+    formOff:{t:"Forming air is off", w:()=>"The sheet was not pressed into the mold. The part did not take shape.", x:()=>"Turn forming air on."},
+    vacEarly:{t:"Vacuum started too early", w:p=>`Vacuum started at ${p.vs} s, but the mold closed at ${p.cl} s. The sheet was not clamped, so the vacuum pulled it in from the edges and the edges wrinkled.`, x:()=>"Start vacuum after the mold has closed."},
+    vacOver:{t:"Vacuum time exceeds the period", w:p=>`Vacuum runs until ${p.s} + ${p.d} = ${p.e} s, period ${p.P} s. The vacuum held the part in the mold while it opened, so blow-back and the pot ring could not get it out.`, x:p=>`Shorten vacuum: start + duration must not exceed ${p.P} s.`},
+    vacShort:{t:"Vacuum too short", w:()=>"The air in the mold was not fully evacuated, the sheet did not sit fully in the mold and an air bubble stayed in the base.", x:()=>"Make vacuum longer."}
+  }
+},
+ar:{
+  dir:"rtl", u:"ث", b1:"تعلّم", b2:"التشكيل الحراري", page:"إعدادات الدورة",
+  ready:"الماكينة جاهزة. اضغط تشغيل تلقائي لبدء الإنتاج.", okIdle:"الإعدادات صحيحة. اضغط تشغيل تلقائي لبدء الإنتاج.", okRun:"الإنتاج طبيعي. المنتجات سليمة.",
+  level:"المستوى", levelV:"متدرب", recipe:"الوصفة", recipeV:"كوب 1000CC · PET 0.26",
+  station:"محطة التشكيل · مباشر", channel:"قناة الدورة", log:"الأحداث والشروحات",
+  auto:"تشغيل تلقائي", stop:"إيقاف", speed:"السرعة:", slow4:"¼ بطيء", slow10:"1/10 بطيء", sound:"الصوت", on:"مفعّل", off:"مغلق",
+  reset:"وصفة المصنع", cpm:"دورة/دقيقة", good:"سليم", bad:"معيب",
+  thFunc:"الوظيفة", thStart:"البداية (ث)", thDur:"المدة (ث)", thTot:"الإجمالي (ث)", thOn:"تفعيل",
+  rowPeriod:"زمن الدورة", perMin:"", rowMold:"قالب التشكيل", colOpen:"الفتح", colClose:"الإغلاق", colTime:"الزمن",
+  rows:{chain:"السلسلة", form:"هواء التشكيل", vac:"الشفط", blow:"النفخ العكسي", plug:"المكبس العلوي", pot:"الدافع السفلي"},
+  autoLbl:"تلقائي", autoTitle:"يُحسب تلقائيًا", togAria:"تشغيل/إيقاف", totOver:"الزمن الإجمالي يتجاوز زمن الدورة", totOk:"البداية + المدة",
+  hint:(o,c,e)=>`المس أي قيمة: تُفتح لوحة الأرقام مع شرح لهذا الإعداد. يُفتح القالب حتى لحظة بدء الإغلاق ثم يُغلق في نفس المدة. عمود الزمن هو لحظة الإغلاق الكامل للقالب (بداية الإغلاق × 2) ويجب أن يكون أقل من زمن الدورة. مدة السلسلة تُحسب تلقائيًا. بهذه الإعدادات يمكن للسلسلة أن تسحب في ${o} ث على الأقل (القالب مفتوح 75%)، وتُثبَّت الشريحة في ${c} ث (القالب مغلق 75%)، ويُغلق القالب بالكامل في ${e} ث.`,
+  heat:"ملاحظة: تأكد من أن الشريحة مسخّنة بما يكفي. في هذه المحاكاة تُعتبر الشريحة دائمًا في درجة الحرارة الصحيحة.",
+  subS:" · البداية", subD:" · المدة", range:"النطاق", rangeErr:(a,b)=>`يجب أن تكون القيمة بين ${a} و ${b}.`, kCancel:"إلغاء", kOk:"موافق",
+  fix:"الحل:", resetT:"تم تحميل وصفة المصنع", resetW:"عادت جميع القيم إلى الإعدادات الأولية.",
+  welcomeT:"أهلًا بك أيها المشغّل", welcomeW:"الماكينة جاهزة بوصفة المصنع. اضغط تشغيل تلقائي وراقب الإنتاج. ثم غيّر قيمة وشاهد ما يحدث. مثلًا، غيّر بداية هواء التشكيل من 1.38 إلى 1.10.",
+  goodT:"المنتج سليم", goodW:"خرج المنتج من القالب بشكل نظيف. نزل المكبس بعد إغلاق القالب، ثم بدأ الشفط وهواء التشكيل. التسلسل صحيح.",
+  evOpen:"القالب يُفتح", evClose:"القالب يُغلق",
+  ev:{chain:"السلسلة تسحب الشريحة خطوة واحدة", form:"هواء التشكيل يضغط", vac:"الشفط يسحب", blow:"النفخ العكسي يفصل المنتج", plug:"المكبس العلوي ينزل", pot:"الدافع السفلي يدفع المنتج للخارج"},
+  mkClamp:"تثبيت", mkClosed:"إغلاق", thEvent:"الحدث", thBeg:"يبدأ", thEnd:"ينتهي", thSt:"الحالة", stOff:"متوقف", stRun:"يعمل", stWait:"بانتظار", stDone:"تم",
+  svgAria:"منظر جانبي لمحطة التشكيل", upper:"القالب العلوي", lower:"القالب السفلي", foldLbl:"طيّ / شدّ", thickLbl:"أعلى سميك · قاعدة رقيقة", stuckLbl:"المنتج عالق في القالب، الشريحة تمزقت",
+  live:{form:"هواء التشكيل", vac:"الشفط", blow:"النفخ العكسي", plug:"المكبس العلوي", pot:"الدافع السفلي", chain:"السلسلة ▶", closed:"القالب مغلق"}, goodP:"منتج سليم", badP:"منتج معيب",
+  info:{
+    period:["زمن الدورة","الزمن الكلي لدورة واحدة. 60 ÷ زمن الدورة = عدد الدورات في الدقيقة. إذا قصّرته يزيد الإنتاج، لكن يقل الوقت المتاح لفتح القالب وإغلاقه ولتسخين الشريحة وتبريد المنتج."],
+    chain:["السلسلة","تنقل الشريحة إلى الأمام بمقدار خطوة واحدة. إذا بدأت قبل أن يُفتح القالب يحدث تصادم بين السلسلة والقالب: تحاول السلسلة سحب الشريحة والقالب مغلق. يجب أن تنتهي قبل إغلاق القالب. مدتها تُحسب تلقائيًا من محرك السلسلة ولا يمكن تغييرها."],
+    form:["هواء التشكيل","يضغط الشريحة داخل القالب بضغط الهواء من الأعلى. إذا نفخ قبل أن يُغلق القالب وتُثبَّت الشريحة بين القالبين العلوي والسفلي يتسرب الهواء وتنزلق الشريحة وتنطوي. إذا كان قصيرًا جدًا لا تمتلئ الزوايا."],
+    vac:["الشفط","يفرّغ الهواء داخل القالب السفلي ويسحب الشريحة إلى داخل القالب، فيساعد على التشكيل. إذا بدأ قبل إغلاق القالب يسحب الشريحة من الأطراف فتتجعد الحواف."],
+    blow:["النفخ العكسي","ينفخ الهواء من الأسفل أثناء فتح القالب لفصل المنتج عن القالب. يجب أن يبدأ أثناء فتح القالب وأن ينتهي قبل سحب السلسلة وقبل بدء إغلاق القالب. إذا بدأ مبكرًا يخرج المنتج قبل أن يبرد فتخرج القاعدة والجدران مجعدة. إذا تأخر يبقى المنتج في القالب ويُسحب معه. إذا طال كثيرًا يبرّد الشريحة ويقلّصها قبل إغلاق القالب فتنطوي."],
+    plug:["المكبس العلوي","يدفع الشريحة إلى داخل القالب فينقل المادة إلى الأسفل ويوزّع سماكة الجدار. إذا نزل قبل إغلاق القالب يشدّ الشريحة ويمطّها. إذا نزل بعد هواء التشكيل يصبح الجزء العلوي من المنتج سميكًا والقاعدة رقيقة."],
+    pot:["الدافع السفلي (حلقة الطرد)","وظيفته الأساسية دفع المنتج المشكَّل خارج القالب أثناء فتحه. يجب أن يرتفع قبل أن تسحب السلسلة، وإلا يبقى المنتج في القالب."],
+    moldClose:["بداية إغلاق القالب","اللحظة التي يبدأ فيها القالب بالإغلاق. يُفتح القالب حتى هذه اللحظة ثم يُغلق في نفس المدة: إذا أدخلت 0.60 يكون مفتوحًا عند 0.60 ومغلقًا عند 1.20. إذا غيّرته فعليك أيضًا تحريك أزمنة السلسلة والمكبس والشفط وهواء التشكيل."]
+  },
+  f:{
+    moldOver:{t:"زمن القالب يتجاوز زمن الدورة", w:p=>`الفتح ${p.o} ث + الإغلاق ${p.c} ث = ${p.s} ث. زمن الدورة ${p.P} ث.`, x:()=>"قدّم بداية الإغلاق أو أطِل زمن الدورة."},
+    moldLate:{t:"القالب لا يُغلق قبل انتهاء الدورة", w:p=>`يُغلق القالب عند ${p.ce} ث، لكن الدورة تنتهي عند ${p.P} ث.`, x:()=>"قدّم بداية الإغلاق."},
+    chainHit:{t:"تصادم السلسلة والقالب", w:p=>`بدأت السلسلة السحب عند ${p.cs} ث، لكن القالب يكون مفتوحًا 75% فقط عند ${p.ok} ث (الفتح الكامل ${p.to} ث). حاولت السلسلة سحب الشريحة والقالب مغلق: علقت الشريحة والمنتجات في القالب وتمزقت.`, x:p=>`ابدأ السلسلة بعد أن يُفتح القالب 75% على الأقل (في هذه الوصفة أقرب وقت ${p.ok} ث).`},
+    potOff:{t:"الدافع السفلي متوقف", w:()=>"لم يُدفع المنتج إلى الخارج وبقي في القالب. عندما سحبت السلسلة تمزق المنتج.", x:()=>"شغّل الدافع السفلي."},
+    potLate:{t:"الدافع السفلي ارتفع متأخرًا", w:p=>`يرتفع الدافع عند ${p.ps} ث، لكن السلسلة تسحب عند ${p.cs} ث. سُحبت الشريحة قبل خروج المنتج من القالب.`, x:()=>"ارفع الدافع السفلي أثناء فتح القالب."},
+    potOver:{t:"زمن الدافع السفلي يتجاوز زمن الدورة", w:p=>`يبقى الدافع مرتفعًا حتى ${p.s} + ${p.d} = ${p.e} ث، وزمن الدورة ${p.P} ث. كان الدافع ما زال مرتفعًا أثناء إغلاق القالب: لم تستقر الشريحة في القالب ولم يتشكل المنتج.`, x:p=>`قصّر زمن الدافع: البداية + المدة يجب ألا تتجاوز ${p.P} ث.`},
+    blowOff:{t:"النفخ العكسي متوقف", w:()=>"التصق المنتج بالقالب ولم يخرج وسُحب معه.", x:()=>"شغّل النفخ العكسي."},
+    blowEarly:{t:"النفخ العكسي بدأ قبل فتح القالب", w:p=>`بدأ النفخ العكسي عند ${p.bs} ث والقالب ما زال مغلقًا والمنتج ما زال يبرد. خرج المنتج قبل أن يبرد: خرجت القاعدة والجدران الجانبية مجعدة.`, x:()=>"ابدأ النفخ العكسي أثناء فتح القالب، بعد انتهاء الشفط وهواء التشكيل."},
+    blowLong:{t:"النفخ العكسي طويل جدًا", w:p=>`يستمر النفخ العكسي حتى ${p.be} ث، لكن القالب يبدأ بالإغلاق عند ${p.mc} ث. برّد الهواء الشريحة وقلّصها قبل إغلاق القالب. لم تتشكل الشريحة الباردة وانطوت طبقتين.`, x:()=>"قصّر النفخ العكسي لينتهي قبل أن يبدأ القالب بالإغلاق."},
+    blowLate:{t:"النفخ العكسي متأخر", w:p=>`النفخ العكسي بين ${p.bs} و ${p.be} ث. يُفتح القالب عند ${p.to} ث وتسحب السلسلة عند ${p.cs} ث. لم يخرج المنتج من القالب وسُحب معه.`, x:()=>"اضبط النفخ العكسي ليعمل أثناء فتح القالب وينتهي قبل سحب السلسلة."},
+    chainClamp:{t:"تثبيت الشريحة وهي تتحرك", w:p=>`تسحب السلسلة حتى ${p.ce} ث، لكن القالب أُغلق عند ${p.cl} ث. تمزقت الشريحة.`, x:()=>"قدّم بداية السلسلة أو أخّر إغلاق القالب."},
+    plugOver:{t:"زمن المكبس العلوي يتجاوز زمن الدورة", w:p=>`يبقى المكبس نازلًا حتى ${p.s} + ${p.d} = ${p.e} ث، وزمن الدورة ${p.P} ث. كان المكبس ما زال داخل المنتج أثناء فتح القالب: انسحق المنتج وتشوّه.`, x:p=>`قصّر زمن المكبس: البداية + المدة يجب ألا تتجاوز ${p.P} ث.`},
+    plugEarly:{t:"المكبس العلوي نزل مبكرًا", w:p=>`نزل المكبس عند ${p.ps} ث، لكن القالب أُغلق عند ${p.cl} ث. لم يكن القالب يثبّت الشريحة فشدّها المكبس: ترقق الجدار وحدث طيّ.`, x:()=>"ابدأ المكبس العلوي بعد إغلاق القالب."},
+    plugLate:{t:"المكبس العلوي نزل متأخرًا", w:()=>"بدأ هواء التشكيل والشفط قبل المكبس. التصقت الشريحة بالقالب قبل نزول المكبس ولم تُنقل المادة إلى الأسفل: الجزء العلوي سميك، والقاعدة والزوايا رقيقة.", x:()=>"أنزل المكبس العلوي قبل هواء التشكيل."},
+    plugOff:{t:"المكبس العلوي متوقف", w:()=>"لم ينزل المكبس ولم ينقل الشريحة إلى داخل القالب. ضغط هواء التشكيل والشفط الشريحة مباشرة على القالب: بقيت المادة في الأعلى، فالحافة وأعلى الجدار سميكان والقاعدة والزوايا رقيقة. في المنتجات العميقة قد تتمزق القاعدة.", x:()=>"شغّل المكبس العلوي وأنزله قبل هواء التشكيل والشفط."},
+    formEarly:{t:"هواء التشكيل نفخ مبكرًا", w:p=>`نفخ الهواء عند ${p.fs} ث، لكن القالب أُغلق عند ${p.cl} ث. لم تكن الشريحة مثبتة فتسرب الهواء وسُحبت الشريحة إلى الجانبين وانطوت طبقتين. في المنتجات ذات القفل لا تنغلق الأقفال.`, x:()=>"ابدأ هواء التشكيل بعد إغلاق القالب."},
+    formShort:{t:"هواء التشكيل قصير", w:p=>`${p.d} ث لم تكن كافية. لم تمتلئ الزوايا وتفاصيل القاعدة.`, x:()=>"أطِل مدة هواء التشكيل."},
+    formOver:{t:"زمن هواء التشكيل يتجاوز زمن الدورة", w:p=>`يستمر هواء التشكيل حتى ${p.s} + ${p.d} = ${p.e} ث، وزمن الدورة ${p.P} ث. استمر النفخ ${p.x} ث بعد فتح القالب: تداخل مع النفخ العكسي وتشوّه المنتج أثناء خروجه.`, x:p=>`قصّر هواء التشكيل: البداية + المدة يجب ألا تتجاوز ${p.P} ث.`},
+    formOff:{t:"هواء التشكيل متوقف", w:()=>"لم تُضغط الشريحة داخل القالب. لم يتشكل المنتج.", x:()=>"شغّل هواء التشكيل."},
+    vacEarly:{t:"الشفط بدأ مبكرًا", w:p=>`بدأ الشفط عند ${p.vs} ث، لكن القالب أُغلق عند ${p.cl} ث. لم تكن الشريحة مثبتة فسحبها الشفط من الأطراف وتجعدت الحواف.`, x:()=>"ابدأ الشفط بعد إغلاق القالب."},
+    vacOver:{t:"زمن الشفط يتجاوز زمن الدورة", w:p=>`يستمر الشفط حتى ${p.s} + ${p.d} = ${p.e} ث، وزمن الدورة ${p.P} ث. أمسك الشفط المنتج في القالب أثناء فتحه، فلم يستطع النفخ العكسي والدافع السفلي إخراجه.`, x:p=>`قصّر الشفط: البداية + المدة يجب ألا تتجاوز ${p.P} ث.`},
+    vacShort:{t:"الشفط قصير", w:()=>"لم يُفرَّغ الهواء من القالب بالكامل، ولم تستقر الشريحة تمامًا في القالب وبقيت فقاعة هواء في القاعدة.", x:()=>"أطِل مدة الشفط."}
+  }
+}};
+
+let LANG = "tr";
+const L = () => I18N[LANG];
+function pickLang(){
+  let q = null; try{ q = new URLSearchParams(location.search).get("lang"); }catch(_){}
+  if (I18N[q]) return q;
+  try{ const s = localStorage.getItem("tfo-lang"); if (I18N[s]) return s; }catch(_){}
+  const nav = (navigator.language||"tr").slice(0,2).toLowerCase();
+  return I18N[nav] ? nav : (nav==="tr" ? "tr" : "en");
+}
+function fx(f){ const d=L().f[f.id]; return {t:d.t, w:d.w(f.p||{}).replace(/ s\b/g," "+L().u), x:d.x(f.p||{}).replace(/ s\b/g," "+L().u)}; }
+
+// ---------- motion model ----------
+// The mold is fully open when closing starts, and closing takes as long as opening. Zaman = moldClose x 2 = moment the mold is closed.
+// 25% tolerance: the chain may pull once the mold is 75% open; the sheet counts as clamped once the mold is 75% closed.
+const ease = u => u<=0?0:u>=1?1:(1-Math.cos(Math.PI*u))/2;
+function model(){
+  const To = R.moldClose, Tc = R.moldClose;
+  const closeEnd = R.moldClose + Tc;
+  const pos = t => t < R.moldClose ? 1 - ease(t/To) : ease((t-R.moldClose)/Tc); // 0 open, 1 closed
+  const openOK = To*2/3;               // mold 75% open (cosine motion)
+  const clampT = R.moldClose + Tc*2/3; // mold 75% closed
+  return {To,Tc,closeEnd,pos,clampT,openOK};
+}
+
+// ---------- faults ----------
+function evaluate(m){
+  const f = [];
+  const P = R.period, add = (id,p,o={})=>f.push({id,p,...o}), first = (id,p,o={})=>f.unshift({id,p,...o});
+  const PP = n2(P);
+  if (m.To + m.Tc >= P) add("moldOver",{o:n2(m.To),c:n2(m.Tc),s:n2(m.To+m.Tc),P:PP});
+  if (m.closeEnd > P) add("moldLate",{ce:n2(m.closeEnd),P:PP});
+  const chainHit = R.chain.s < m.openOK - 0.005;
+  if (chainHit) first("chainHit",{cs:n2(R.chain.s),ok:n2(m.openOK),to:n2(m.To)},{k:"chain",eject:1});
+  const ejectBy = R.chain.s;
+  if (!R.pot.on) add("potOff",{},{k:"pot",eject:1});
+  else if (!chainHit && R.pot.s > ejectBy) add("potLate",{ps:n2(R.pot.s),cs:n2(ejectBy)},{k:"pot",eject:1});
+  if (R.pot.on && R.pot.s + R.pot.d > P + 0.005) first("potOver",{s:n2(R.pot.s),d:n2(R.pot.d),e:n2(R.pot.s+R.pot.d),P:PP},{k:"pot"});
+  if (!R.blow.on) add("blowOff",{},{k:"blow",eject:1});
+  else {
+    const bEnd = R.blow.s + R.blow.d;
+    if (m.pos(R.blow.s) > 0.9) add("blowEarly",{bs:n2(R.blow.s)},{snd:"hiss",k:"blow"});
+    if (bEnd > R.moldClose) add("blowLong",{be:n2(bEnd),mc:n2(R.moldClose)},{k:"blow",fold:1});
+  }
+  if (R.blow.on && !chainHit && (R.blow.s > m.To || (R.blow.s + R.blow.d > ejectBy + 0.005 && R.blow.s + R.blow.d <= R.moldClose))) add("blowLate",{bs:n2(R.blow.s),be:n2(R.blow.s+R.blow.d),to:n2(m.To),cs:n2(ejectBy)},{k:"blow",eject:1});
+  const cEnd = R.chain.s + R.chain.d;
+  if (cEnd > m.closeEnd + 0.01) add("chainClamp",{ce:n2(cEnd),cl:n2(m.closeEnd)},{k:"chain"});
+  if (R.plug.on){
+    if (R.plug.s + R.plug.d > P + 0.005) first("plugOver",{s:n2(R.plug.s),d:n2(R.plug.d),e:n2(R.plug.s+R.plug.d),P:PP},{k:"plug",fold:1});
+    if (R.plug.s < m.clampT - 0.015) add("plugEarly",{ps:n2(R.plug.s),cl:n2(m.clampT)},{snd:"stretch",k:"plug",fold:1});
+    if (R.form.on && R.plug.s > R.form.s + 0.005) add("plugLate",{},{k:"plug",thick:1});
+  } else add("plugOff",{},{k:"plug",thick:1});
+  if (R.form.on){
+    if (R.form.s < m.clampT - 0.015) add("formEarly",{fs:n2(R.form.s),cl:n2(m.clampT)},{snd:"hiss",k:"form",fold:1});
+    if (R.form.d < 0.2) add("formShort",{d:n2(R.form.d)},{k:"form",short:1});
+    if (R.form.s + R.form.d > P + 0.005) first("formOver",{s:n2(R.form.s),d:n2(R.form.d),e:n2(R.form.s+R.form.d),P:PP,x:n2(R.form.s+R.form.d-P)},{snd:"hiss",k:"form"});
+  } else add("formOff",{},{k:"form",short:1});
+  if (R.vac.on){
+    if (R.vac.s < m.clampT - 0.015) add("vacEarly",{vs:n2(R.vac.s),cl:n2(m.clampT)},{k:"vac",fold:1});
+    if (R.vac.s + R.vac.d > P + 0.005) first("vacOver",{s:n2(R.vac.s),d:n2(R.vac.d),e:n2(R.vac.s+R.vac.d),P:PP},{k:"vac",eject:1});
+    if (R.vac.d < 0.2) add("vacShort",{},{k:"vac",short:1});
+  }
+  return f;
+}
+
+// ---------- state ----------
+let running=false, speed=1, t=0, last=null, good=0, bad=0, M=model(), F=evaluate(M), soundOn=false, actx=null;
+const $ = s=>document.querySelector(s);
+const ROWS=["chain","form","vac","blow","plug","pot"];
+
+// ---------- settings table ----------
+function cellBtn(key,sub,val){return `<button class="cell" data-k="${key}" data-sub="${sub||''}">${n2(val)}</button>`;}
+function totCell(r){const v=r.s+r.d, over=r.on&&v>R.period+0.005; return `<span class="cell ro tot${over?' over':''}" title="${over?L().totOver:L().totOk}">${n2(v)}</span>`;}
+function renderPage(){
+  const T=L();
+  let h=`<table class="ctab"><thead><tr><th>${T.thFunc}</th><th>${T.thStart}</th><th>${T.thDur}</th><th>${T.thTot}</th><th>${T.thOn}</th></tr></thead><tbody>`;
+  h+=`<tr><td class="nm">${T.rowPeriod}</td><td>${cellBtn("period","",R.period)}</td><td><span class="cell ro">${(60/R.period).toFixed(1)}${T.perMin}</span></td><td></td><td></td></tr>`;
+  for(const k of ROWS){const r=R[k], n=T.rows[k], ch=k==="chain";
+    h+=`<tr><td class="nm">${n}</td><td>${cellBtn(k,"s",r.s)}</td><td>${ch?`<span class="cell ro" title="${T.autoTitle}">${n2(r.d)}</span>`:cellBtn(k,"d",r.d)}</td><td>${ch?'':totCell(r)}</td><td>${ch?`<span class="hint" style="margin:0">${T.autoLbl}</span>`:`<button class="tog${r.on?' on':''}" data-tog="${k}" aria-label="${n} ${T.togAria}" aria-pressed="${r.on}"></button>`}</td></tr>`;}
+  h+=`<tr class="sep"><td></td><th>${T.colOpen}</th><th>${T.colClose}</th><th>${T.colTime}</th></tr>`;
+  h+=`<tr><td class="nm">${T.rowMold}</td><td><span class="cell ro">0.00</span></td><td>${cellBtn("moldClose","",R.moldClose)}</td><td><span class="cell ro">${n2(M.To+M.Tc)}</span></td></tr>`;
+  h+=`</tbody></table><p class="hint">${T.hint(n2(M.openOK),n2(M.clampT),n2(M.closeEnd))}</p><p class="heatnote">${T.heat}</p>`;
+  $("#page").innerHTML=h;
+}
+
+// ---------- keypad ----------
+let edit=null, buf="";
+function openPad(k,sub){
+  const T=L(), [title,why]=T.info[k], [mn,mx]=RANGE[k];
+  const cur = sub?R[k][sub]:R[k];
+  edit={k,sub,mn,mx}; buf="";
+  $("#padt").textContent = title + (sub==="s"?T.subS:sub==="d"?T.subD:"");
+  $("#padwhy").textContent = why;
+  $("#paddisp").textContent = n2(cur);
+  $("#padrng").textContent = `${T.range} ${mn} – ${mx}`;
+  $("#paderr").textContent="";
+  $("#modal").hidden=false;
+}
+function renderKeys(){
+  const T=L(), KEYS=["7","8","9","←","4","5","6","C","1","2","3","cancel","0",".","","ok"];
+  $("#keys").innerHTML=KEYS.map(k=>k===""?"<span></span>":`<button class="${k==='ok'?'ok':''}" data-key="${k}">${k==="ok"?T.kOk:k==="cancel"?T.kCancel:k}</button>`).join("");
+}
+$("#keys").addEventListener("click",e=>{
+  const b=e.target.closest("[data-key]"); if(!b) return; const k=b.dataset.key;
+  if(k==="cancel"){ $("#modal").hidden=true; return; }
+  if(k==="C"){ buf=""; }
+  else if(k==="←"){ buf=buf.slice(0,-1); }
+  else if(k==="ok"){
+    const v=parseFloat(buf);
+    if(buf===""){ $("#modal").hidden=true; return; }
+    if(isNaN(v)||v<edit.mn||v>edit.mx){ $("#paderr").textContent=L().rangeErr(edit.mn,edit.mx); return; }
+    if(edit.sub) R[edit.k][edit.sub]=v; else R[edit.k]=v;
+    $("#modal").hidden=true; recompute(); return;
+  } else if(buf.length<6 && !(k==="."&&buf.includes("."))){ buf+=k; }
+  $("#paddisp").textContent = buf || "0";
+});
+$("#modal").addEventListener("click",e=>{ if(e.target.id==="modal") $("#modal").hidden=true; });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") $("#modal").hidden=true; });
+
+// ---------- events ----------
+document.addEventListener("click",e=>{
+  const c=e.target.closest(".cell:not(.ro)"); if(c){ openPad(c.dataset.k,c.dataset.sub); return; }
+  const tg=e.target.closest("[data-tog]"); if(tg){ const r=R[tg.dataset.tog]; r.on=!r.on; recompute(); return; }
+  const lg=e.target.closest("[data-lang]"); if(lg){ setLang(lg.dataset.lang); return; }
+  const sp=e.target.closest("[data-spd]"); if(sp){ speed=+sp.dataset.spd; document.querySelectorAll("[data-spd]").forEach(b=>b.classList.toggle("sel",b===sp)); }
+});
+function setOto(){ $("#oto").textContent=running?L().stop:L().auto; $("#oto").className="btn "+(running?"stop":"primary"); }
+function setSnd(){ $("#snd").textContent=L().sound+": "+(soundOn?L().on:L().off); }
+$("#oto").onclick=()=>{ running=!running; setOto(); last=null; if(running) requestAnimationFrame(loop); setAlarm(); };
+$("#snd").onclick=()=>{ soundOn=!soundOn; setSnd(); if(soundOn&&!actx){ try{ actx=new (window.AudioContext||window.webkitAudioContext)(); }catch(_){} } };
+$("#reset").onclick=()=>{ R=JSON.parse(JSON.stringify(DEFAULTS)); recompute(); addLog(false,{key:"reset"}); };
+
+function recompute(){
+  M=model(); F=evaluate(M);
+  $("#cpm").textContent=(60/R.period).toFixed(1);
+  renderPage(); drawTimeline(); setAlarm();
+}
+function setAlarm(){
+  const a=$("#alarm");
+  if(F.length){ a.textContent="⚠ "+fx(F[0]).t+(F.length>1?`  (+${F.length-1})`:""); a.classList.add("bad"); }
+  else { a.textContent=running?L().okRun:(good+bad?L().okIdle:L().ready); a.classList.remove("bad"); }
+}
+
+// ---------- event log (kept as data so it can be re-rendered in another language) ----------
+let LOG=[], lastLogKey="";
+function addLog(isBad,item){ LOG.unshift({bad:isBad,...item}); LOG=LOG.slice(0,8); renderLog(); }
+function renderLog(){
+  const T=L(), log=$("#log"); log.innerHTML="";
+  for(const it of LOG){
+    let title,why,fix="";
+    if(it.fault){ const x=fx(it.fault); title=x.t; why=x.w; fix=x.x; }
+    else if(it.key==="reset"){ title=T.resetT; why=T.resetW; }
+    else if(it.key==="welcome"){ title=T.welcomeT; why=T.welcomeW; }
+    else { title=T.goodT; why=T.goodW; }
+    const li=document.createElement("li"); if(it.bad) li.className="bad";
+    li.innerHTML=`<b></b><small></small>`; li.querySelector("b").textContent=title; li.querySelector("small").textContent=why+(fix?" "+T.fix+" "+fix:"");
+    log.appendChild(li);
+  }
+  const nb=LOG.filter(x=>x.bad).length, c=$("#logcount"); c.textContent=LOG.length; c.classList.toggle("bad",nb>0);
+}
+
+// ---------- sound ----------
+function noise(dur,freq,gain){
+  if(!soundOn||!actx) return;
+  const n=actx.sampleRate*dur, buffer=actx.createBuffer(1,n,actx.sampleRate), d=buffer.getChannelData(0);
+  for(let i=0;i<n;i++) d[i]=(Math.random()*2-1)*(1-i/n);
+  const src=actx.createBufferSource(); src.buffer=buffer;
+  const f=actx.createBiquadFilter(); f.type="bandpass"; f.frequency.value=freq; f.Q.value=0.8;
+  const g=actx.createGain(); g.gain.value=gain;
+  src.connect(f).connect(g).connect(actx.destination); src.start();
+}
+const clunk=()=>noise(0.12,180,0.6), hiss=()=>noise(0.6,4500,0.5), stretch=()=>noise(0.35,900,0.35);
+
+// ---------- period channel + event table ----------
+function events(){
+  const T=L(), list=[{k:"mold",n:T.evOpen,s:0,e:M.To,open:1},{k:"mold",n:T.evClose,s:R.moldClose,e:M.closeEnd}];
+  for(const k of ["pot","blow","chain","plug","vac","form"]){const r=R[k]; list.push({k,n:T.ev[k],s:r.s,e:r.s+r.d,off:!r.on});}
+  return list.sort((a,b)=>a.s-b.s);
+}
+let EV=[];
+function drawTimeline(){
+  const T=L(); EV=events(); const P=R.period, pct=v=>Math.min(100,v/P*100);
+  const pts=[]; EV.filter(e=>!e.off).forEach(e=>pts.push({v:e.s,k:e.k,l:n2(e.s)}));
+  pts.push({v:M.clampT,k:"mold",l:T.mkClamp+" "+n2(M.clampT),closed:1}); pts.push({v:M.closeEnd,k:"mold",l:T.mkClosed+" "+n2(M.closeEnd),closed:1});
+  pts.sort((a,b)=>a.v-b.v);
+  const lv=[["","-4px"],["","-18px"],["lo","-4px"],["lo","-18px"]];
+  $("#marks").innerHTML=pts.map((p,i)=>{const bd=!p.closed&&F.some(f=>(f.k||"mold")===p.k); const [cls,off]=lv[i%4];
+    const pos=cls?`top:calc(100% + ${-parseInt(off)}px)`:`bottom:calc(100% + ${-parseInt(off)}px)`;
+    return `<div class="mk ${p.k==='mold'?'mold':''} ${bd?'bad':''}" style="left:${pct(p.v)}%"><span style="${pos}">${p.l}</span></div>`;}).join("");
+  let sc=""; for(let i=0;i<=4;i++) sc+=`<span>${n2(P*i/4)}</span>`; $("#scale").innerHTML=sc;
+  drawTable();
+}
+function drawTable(){
+  const T=L(); let h=`<tr><th>${T.thEvent}</th><th>${T.thBeg}</th><th>${T.thEnd}</th><th>${T.thSt}</th></tr>`;
+  for(const e of EV){
+    const fault=F.find(f=>(f.k||"mold")===e.k && !e.open);
+    const act=!e.off && t>=e.s && t<=e.e;
+    const st=e.off?T.stOff:fault?fx(fault).t:act?T.stRun:t<e.s?T.stWait:T.stDone;
+    const cls=[e.off?"off":"",fault?"bad":"",act?"act":"",e.k==="mold"?"mold":""].join(" ");
+    h+=`<tr class="${cls}"><td>${e.n}</td><td class="num">${n2(e.s)}</td><td class="num">${n2(e.e)}</td><td class="st">${st}</td></tr>`;
+  }
+  $("#ev").innerHTML=h;
+}
+function tickChannel(){
+  const P=R.period; $("#fill").style.width=(Math.min(1,t/P)*100)+"%";
+  const done=EV.filter(e=>!e.off&&e.s<=t); const lastE=done[done.length-1];
+  $("#now").textContent=n2(t)+" "+L().u+(lastE?" · "+lastE.n:"");
+}
+
+// ---------- machine view (3-cavity cross-section) ----------
+const CAV=[{x:158},{x:303},{x:448}], CW=120, CB=88, CD=72; // cavity top width, bottom width, depth
+function cupPath(x,y,d,wr){ // sheet following one cavity down to depth d; wr = wrinkle amplitude
+  const inset=(CW-CB)/2*(d/CD), r=Math.min(14,d/3);
+  if(wr){ let p=`L${x},${y}`; const n=6; for(let i=1;i<=n;i++){p+=` L${x+inset*i/n+(i%2?wr:-wr)},${y+d*i/n}`;} p+=` L${x+CW-inset},${y+d}`; for(let i=n-1;i>=0;i--){p+=` L${x+CW-inset*i/n+(i%2?wr:-wr)},${y+d*i/n}`;} return p+` L${x+CW},${y}`; }
+  return `L${x},${y} L${x+inset},${y+d-r} Q${x+inset},${y+d} ${x+inset+r},${y+d} L${x+CW-inset-r},${y+d} Q${x+CW-inset},${y+d} ${x+CW-inset},${y+d-r} L${x+CW},${y}`;
+}
+function sheetLine(y,d,wr,dx,fin){ // fin: finished parts from earlier cycles, sitting to the right of the mold
+  let p=`M${VX0-10},${y}`; for(const c of CAV) p+=" "+cupPath(c.x+dx,y,d,wr);
+  if(fin) for(let k=1;k<=3;k++) for(const c of CAV){ const x=c.x+dx+450*k; if(x<VX1) p+=" "+cupPath(x,y,CD,fin.wr); }
+  return p+` L${VX1+10},${y}`;
+}
+let VX0=130, VX1=600; // visible world, set by fitMach so 1 svg unit = 1 px and the mold keeps its size
+function fitMach(){ const svg=$("#mach"), cw=svg.clientWidth||470, VW=Math.max(470,cw); VX0=365-VW/2; VX1=VX0+VW; svg.setAttribute("viewBox",`${VX0} 0 ${VW} 330`); svg.style.height=(330*cw/VW)+"px"; if(!running) drawMachine(); }
+window.addEventListener("resize",fitMach);
+function drawMachine(){
+  const T=L(), LV=T.live;
+  const p=M.pos(t), pv=Math.min(1,p/0.75), open=1-pv, gap=open*50, Y=158; // drawn closed from 75% (tolerance)
+  const clamped=pv>0.995;
+  const on=(r)=>r.on && t>=r.s && t<=r.s+r.d;
+  const formAct=on(R.form), vacAct=on(R.vac), plugAct=on(R.plug), potAct=on(R.pot), blowAct=on(R.blow), chainAct=on(R.chain);
+  const foldF=F.some(f=>f.fold), ejectF=F.some(f=>f.eject), plugLate=F.some(f=>f.thick), shortF=F.some(f=>f.short);
+  const upB=Y-4-gap, loT=Y+4+gap; // upper mold bottom, lower mold top
+  const plugD = plugAct ? Math.min(1,(t-R.plug.s)/0.22)*60 : 0;
+  const formStart=Math.min(R.form.on?R.form.s:9, R.vac.on?R.vac.s:9);
+  const forming = t>=Math.min(formStart,R.plug.on?R.plug.s:9) && t>=R.moldClose;
+  const RED="#e3262d", REDT="#ff8c8c", REDD="#a5161c";
+  let s=`<defs><linearGradient id="stl" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#4a545b"/><stop offset="1" stop-color="#2c3338"/></linearGradient>
+  <clipPath id="clipM"><rect x="${VX0}" y="0" width="${VX1-VX0}" height="330"/></clipPath></defs>`;
+  // --- upper mold: frame with windows, columns, plug plate
+  const UM0=140, UM1=590, uTop=upB-54;
+  s+=`<rect x="${UM0+40}" y="${uTop-30}" width="370" height="12" rx="2" fill="#3b444a" stroke="#5b666e"/>`;
+  for(const c of CAV){ const cx=c.x+CW/2; s+=`<rect x="${cx-5}" y="${uTop-18}" width="10" height="${32+plugD}" fill="#6f7a82"/>`; }
+  s+=`<rect x="${UM0}" y="${uTop}" width="${UM1-UM0}" height="54" rx="3" fill="url(#stl)" stroke="#5b666e"/>`;
+  for(const c of CAV){ s+=`<rect x="${c.x+6}" y="${uTop+10}" width="${CW-12}" height="44" fill="#161c20" stroke="#3f4a51"/>`; }
+  for(const c of CAV){ const cx=c.x+CW/2, pt=uTop+14+plugD; s+=`<path d="M${cx-44},${pt} L${cx+44},${pt} L${cx+36},${pt+32} Q${cx+34},${pt+38} ${cx+28},${pt+38} L${cx-28},${pt+38} Q${cx-34},${pt+38} ${cx-36},${pt+32} Z" fill="${R.plug.on?'#8a96a0':'#4a545b'}" stroke="#b8c3ca" stroke-width="1"/>`; }
+  s+=`<text x="${UM1-6}" y="${uTop+8}" fill="#c9d6dc" font-size="9" text-anchor="end">${T.upper}</text>`;
+  // --- lower mold with three cavities, vent slots, pot ring plates
+  const lBot=loT+100;
+  let lm=`M${UM0},${loT}`; for(const c of CAV){ lm+=` L${c.x},${loT} L${c.x+(CW-CB)/2},${loT+CD} L${c.x+CW-(CW-CB)/2},${loT+CD} L${c.x+CW},${loT}`; } lm+=` L${UM1},${loT} L${UM1},${lBot} L${UM0},${lBot} Z`;
+  s+=`<path d="${lm}" fill="url(#stl)" stroke="#5b666e"/>`;
+  for(const c of CAV){ for(let k=1;k<6;k++){ const x=c.x+(CW-CB)/2+ k*CB/6; s+=`<line x1="${x}" y1="${loT+CD+6}" x2="${x}" y2="${loT+CD+26}" stroke="#151a1e" stroke-width="2"/>`; } }
+  const potRise = potAct ? Math.min(1,(t-R.pot.s)/0.15)*CD*0.85 : 0;
+  for(const c of CAV){ const x=c.x+(CW-CB)/2+4; s+=`<rect x="${x}" y="${loT+CD-6-potRise}" width="${CB-8}" height="6" rx="2" fill="#f28ab0" opacity="${R.pot.on?1:.3}"/>`; }
+  s+=`<text x="${UM1-6}" y="${lBot-4}" fill="#c9d6dc" font-size="9" text-anchor="end">${T.lower}</text>`;
+  // --- sheet & products
+  const wr = foldF ? 5 : 0;
+  if(t>=R.moldClose){
+    let d=0;
+    if(clamped && forming){ d = Math.max(Math.min(plugD,CD), (formAct||vacAct||t>formStart)&&t>=formStart ? CD : 0); if(shortF) d=Math.min(d,CD*0.7); }
+    if(foldF && forming && p>0.6) d=Math.max(d,CD*0.75);
+    const useWr = foldF && forming && p>0.6 ? wr : 0;
+    const cEnd2=R.chain.s+R.chain.d;
+    const fin = ejectF ? null : {wr:foldF?wr:0};
+    if(d===0 && R.chain.on && t<cEnd2 && !ejectF){ const dx2=Math.max(0,(t-R.chain.s)/R.chain.d*450); s+=`<g clip-path="url(#clipM)"><path d="${sheetLine(Y,CD,foldF?wr:0,dx2,fin)}" stroke="${foldF?REDD:RED}" stroke-width="3.5" fill="none" stroke-linejoin="round"/></g>`; }
+    else s+=`<path d="${sheetLine(Y,d,useWr,0,fin)}" stroke="${useWr?REDD:RED}" stroke-width="3.5" fill="none" stroke-linejoin="round"/>`;
+    if(d>CD*0.9 && !useWr){ // thin walls drawn lighter; thick top and thin base when the plug is late or off
+      for(const c of CAV){ const inset=(CW-CB)/2; s+=`<line x1="${c.x}" y1="${Y}" x2="${c.x+inset}" y2="${Y+CD-12}" stroke="${REDT}" stroke-width="2"/><line x1="${c.x+CW}" y1="${Y}" x2="${c.x+CW-inset}" y2="${Y+CD-12}" stroke="${REDT}" stroke-width="2"/>`; if(plugLate) s+=`<line x1="${c.x}" y1="${Y}" x2="${c.x+inset*0.4}" y2="${Y+CD*0.4}" stroke="${REDD}" stroke-width="7"/><line x1="${c.x+CW}" y1="${Y}" x2="${c.x+CW-inset*0.4}" y2="${Y+CD*0.4}" stroke="${REDD}" stroke-width="7"/><line x1="${c.x+inset+12}" y1="${Y+CD}" x2="${c.x+CW-inset-12}" y2="${Y+CD}" stroke="#ffd0d0" stroke-width="1.5"/>`; }
+      if(plugLate) s+=`<text x="365" y="322" fill="#ef5d4d" font-size="11" text-anchor="middle">${T.thickLbl}</text>`;
+    }
+    if(useWr) s+=`<text x="365" y="${Y-8}" fill="#ef5d4d" font-size="11" text-anchor="middle">${T.foldLbl}</text>`;
+  } else {
+    const cEnd=R.chain.s+R.chain.d;
+    const dx = !R.chain.on?0 : t<R.chain.s?0 : t>cEnd?450 : (t-R.chain.s)/R.chain.d*450;
+    if(ejectF){
+      for(const c of CAV){ s+=`<path d="M${c.x},${loT} ${cupPath(c.x,loT,CD,0).slice(1)}" stroke="${REDD}" stroke-width="3.5" fill="none"/>`; }
+      s+=`<path d="M${VX0},${Y} L${VX1},${Y}" stroke="${RED}" stroke-width="3" stroke-dasharray="10 8" fill="none"/>`;
+      s+=`<text x="365" y="${loT+CD/2}" fill="#ef5d4d" font-size="12" text-anchor="middle">${T.stuckLbl}</text>`;
+    } else {
+      s+=`<g clip-path="url(#clipM)"><path d="${sheetLine(Y,CD,foldF?wr:0,dx,{wr:foldF?wr:0})}" stroke="${foldF?REDD:RED}" stroke-width="3.5" fill="none" stroke-linejoin="round"/></g>`;
+    }
+  }
+  // --- air, vacuum, blow arrows and live labels
+  const arrows=(y,dir,col)=>CAV.map(c=>{const x=c.x+CW/2; return [-26,0,26].map(o=>`<path d="M${x+o},${y} v${14*dir} l-4,${-5*dir} m4,${5*dir} l4,${-5*dir}" stroke="${col}" stroke-width="2" fill="none"/>`).join("");}).join("");
+  const st=[]; if(formAct){ s+=arrows(upB-44,1,"#8fd8e6"); st.push([LV.form,"#8fd8e6"]); }
+  if(vacAct){ s+=arrows(loT+CD+8,1,"#5fcf8f"); st.push([LV.vac,"#5fcf8f"]); }
+  if(blowAct){ s+=arrows(loT+CD+24,-1,"#c9d6dc"); st.push([LV.blow,"#c9d6dc"]); }
+  if(plugAct) st.push([LV.plug,"#b8c3ca"]); if(potAct) st.push([LV.pot,"#f28ab0"]);
+  s+=`<text x="${VX0+10}" y="16" font-size="11">${st.map(([n,c])=>`<tspan fill="${c}">${n}  </tspan>`).join("")}</text>`;
+  if(chainAct) s+=`<text x="${VX1-10}" y="16" fill="#f2a531" font-size="11" text-anchor="end">${LV.chain}</text>`;
+  if(clamped) s+=`<text x="${VX1-10}" y="34" fill="#f2c94c" font-size="10" text-anchor="end">${LV.closed}</text>`;
+  s+=`<text x="${VX0+10}" y="322" fill="#8ea3ae" font-size="11">t = ${n2(t)} ${T.u}</text><text x="${VX1-10}" y="322" fill="${F.length?'#ef5d4d':'#5fcf8f'}" font-size="11" text-anchor="end">${F.length?T.badP:T.goodP}</text>`;
+  $("#mach").innerHTML=s;
+}
+
+// ---------- language ----------
+function setLang(l){
+  LANG=I18N[l]?l:"tr"; try{ localStorage.setItem("tfo-lang",LANG); }catch(_){}
+  const T=L();
+  document.documentElement.lang=LANG; document.documentElement.dir=T.dir;
+  document.querySelectorAll("[data-lang]").forEach(b=>b.classList.toggle("on",b.dataset.lang===LANG));
+  document.querySelectorAll("[data-t]").forEach(el=>{ el.textContent=T[el.dataset.t]; });
+  $("#b1").textContent=T.b1; $("#b2").textContent=T.b2; $("#pagename").textContent=T.page;
+  document.title = LANG==="tr" ? "Termoform Öğreniyorum" : LANG==="en" ? "Thermoform Trainer · Termoform Öğreniyorum" : "تعلّم التشكيل الحراري · Termoform Öğreniyorum";
+  $("#mach").setAttribute("aria-label",T.svgAria);
+  setOto(); setSnd(); renderKeys(); renderLog(); recompute(); drawMachine();
+  if(!$("#modal").hidden) $("#modal").hidden=true;
+}
+
+// ---------- loop ----------
+function loop(ts){
+  if(!running){ drawMachine(); return; }
+  if(last===null) last=ts;
+  const dt=Math.min(0.1,(ts-last)/1000)*speed; last=ts;
+  const prev=t; t+=dt;
+  const cross=v=>prev<v && t>=v;
+  if(cross(M.clampT)) clunk();
+  if(R.form.on && cross(R.form.s) && F.some(f=>f.snd==="hiss")) hiss();
+  if(R.plug.on && cross(R.plug.s) && F.some(f=>f.snd==="stretch")) stretch();
+  if(t>=R.period){
+    t-=R.period;
+    if(F.length){ bad++; const key=F.map(f=>f.id).join("|"); if(key!==lastLogKey){ F.slice(0,2).reverse().forEach(f=>addLog(true,{fault:f})); lastLogKey=key; } }
+    else { good++; if(lastLogKey!=="ok"){ addLog(false,{key:"good"}); lastLogKey="ok"; } }
+    $("#good").textContent=good; $("#badc").textContent=bad; setAlarm();
+  }
+  tickChannel(); drawTable();
+  drawMachine();
+  requestAnimationFrame(loop);
+}
+
+LOG=[{bad:false,key:"welcome"}];
+setLang(pickLang());
+fitMach();
+</script>
+
+</body>
+</html>
