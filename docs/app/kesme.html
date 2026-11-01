@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kesme · Dizme · Termoform Öğreniyorum</title>
+<meta name="theme-color" content="#12191e">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="icon" href="../favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Same dark panel look as the cycle page: settings on one side, live view and fault list on the other. */
+:root{
+  --bg:#12191e; --panel:#1a242b; --panel2:#212e36; --line:#2e3d47;
+  --fg:#e2eaee; --muted:#8ea3ae; --value:#8fd8e6; --accent:#f2a531; --accentInk:#1b1306;
+  --ok:#5fcf8f; --bad:#ef5d4d; --warn:#f2c94c; --sheet:#e2453a;
+  --f-disp:"Chakra Petch","Segoe UI",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit;cursor:pointer}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+header{border-bottom:1px solid var(--line);background:#0f1519}
+header .wrap{display:flex;align-items:center;gap:8px 16px;flex-wrap:wrap;padding-top:10px;padding-bottom:0}
+.brand{font-family:var(--f-disp);font-weight:700;font-size:18px;letter-spacing:.06em}
+.brand b{color:var(--accent)}
+.pagename{font-family:var(--f-disp);font-size:13px;letter-spacing:.12em;color:var(--muted)}
+.copy{font-size:11px;color:var(--muted);margin-top:2px}
+.back{margin-left:auto;text-decoration:none;color:var(--accent);border:1px solid #6b4c1a;border-radius:4px;padding:6px 10px;font-family:var(--f-disp);font-size:12px;font-weight:600;letter-spacing:.06em}
+.preview{margin-left:auto;font-family:var(--f-disp);font-size:11px;letter-spacing:.12em;color:var(--warn);border:1px dashed var(--warn);border-radius:3px;padding:3px 8px}
+.tabs{display:flex;gap:4px;flex-basis:100%}
+.tabs button{background:none;border:0;border-bottom:3px solid transparent;padding:10px 12px;font-family:var(--f-disp);font-size:13px;font-weight:600;letter-spacing:.08em;color:var(--muted)}
+.tabs button.on{color:var(--fg);border-bottom-color:var(--accent)}
+[hidden]{display:none!important}
+.assume{margin:14px 0;background:var(--panel);border:1px dashed var(--warn);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--muted);line-height:1.55}
+.assume b{color:var(--warn);font-family:var(--f-disp);letter-spacing:.06em}
+.assume ul{margin:4px 0 0;padding-left:18px}
+.lay{display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:14px;margin-bottom:24px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px}
+.card h2{margin:0 0 10px;font-family:var(--f-disp);font-size:13px;letter-spacing:.1em;color:var(--muted);font-weight:600}
+.row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row .nm{font-family:var(--f-disp);font-size:14px;letter-spacing:.02em}
+.row .nm small{display:block;font-family:var(--f-body);font-size:11.5px;color:var(--muted);letter-spacing:0;margin-top:2px;line-height:1.35}
+.step{display:flex;align-items:center;gap:4px}
+.step button{width:34px;height:34px;border-radius:6px;background:var(--panel2);border:1px solid var(--line);font-family:var(--f-mono);font-size:16px}
+.step button:active{background:#2a3a44}
+.step .v{min-width:74px;text-align:center;font-family:var(--f-mono);font-size:17px;color:var(--value);background:#0f1519;border:1px solid var(--line);border-radius:6px;padding:6px 4px}
+.step .v small{font-size:11px;color:var(--muted);margin-left:2px}
+.row.lock{opacity:.4;pointer-events:none}
+.tog{width:52px;height:28px;border-radius:14px;border:1px solid var(--line);background:#0f1519;position:relative}
+.tog::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--muted);transition:left .15s}
+.tog.on{background:#1f3b2c;border-color:var(--ok)}.tog.on::after{left:27px;background:var(--ok)}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btn{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:9px 14px;font-family:var(--f-disp);font-weight:700;font-size:12px;letter-spacing:.06em}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accentInk)}
+.view{background:#0d1317;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.view svg{display:block;width:100%;height:auto}
+.status{display:flex;align-items:center;gap:10px;margin:10px 0 0;padding:10px 12px;border-radius:6px;background:#1f3b2c;border:1px solid var(--ok);color:var(--ok);font-family:var(--f-disp);font-size:14px;letter-spacing:.04em}
+.status.bad{background:#3a1d1a;border-color:var(--bad);color:#ffb3a9}
+.status.warn{background:#3a321a;border-color:var(--warn);color:var(--warn)}
+.faults{display:grid;gap:8px;margin-top:10px}
+.fault{background:var(--panel2);border-left:3px solid var(--bad);border-radius:6px;padding:9px 11px}
+.fault.warn{border-left-color:var(--warn)}
+.fault b{font-family:var(--f-disp);font-size:14px;letter-spacing:.02em}
+.fault p{margin:4px 0 0;font-size:13px;color:var(--muted);line-height:1.45}
+.fault p.fix{color:var(--fg)}
+.fault p.fix::before{content:"Çözüm: ";color:var(--ok);font-weight:600}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:6px}
+.counters{display:flex;gap:16px;font-family:var(--f-disp);font-size:13px;color:var(--muted);margin-top:8px;flex-wrap:wrap}
+.counters b{font-family:var(--f-mono);color:var(--fg);font-size:16px}
+footer{color:var(--muted);font-size:12px;padding:10px 0 40px;text-align:center}
+@media (max-width:860px){.lay{grid-template-columns:minmax(0,1fr)}.view-col{order:-1}}
+@media (max-width:600px){.brand{font-size:15px}.back{margin-left:0}}
+.arrows{display:flex;align-items:center;gap:4px}
+.arrows button{width:58px;height:50px;border-radius:8px;background:var(--panel2);border:1px solid var(--line);display:grid;place-items:center;padding:0}
+.arrows button svg{width:40px;height:40px}
+.arrows button:active{background:#2a3a44}
+.arrows .v{min-width:92px;text-align:center;font-family:var(--f-mono);font-size:15px;color:var(--value);background:#0f1519;border:1px solid var(--line);border-radius:6px;padding:4px}
+.arrows .v small{display:block;font-size:10px;color:var(--muted)}
+.mode{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.45}
+.hit{cursor:pointer}.hit:hover{fill:rgba(255,255,255,.12)}
+/* die pad: four buttons around a readout */
+.die{border:1px solid var(--line);border-radius:8px;padding:8px;margin-top:8px;background:#162026}
+.die h3{margin:0 0 6px;flex-wrap:wrap;gap:2px;font-family:var(--f-disp);font-size:12px;letter-spacing:.08em;color:var(--fg);display:flex;justify-content:space-between}
+.die h3 small{font-family:var(--f-mono);font-size:11px;color:var(--muted);letter-spacing:0}
+.pad{display:grid;grid-template-columns:44px 1fr 44px;grid-template-rows:auto auto auto;gap:4px;align-items:center}
+.pad button{height:42px;border-radius:8px;background:var(--panel2);border:1px solid var(--line);display:grid;place-items:center;padding:0}
+.pad button svg{width:28px;height:28px}
+.pad button:active{background:#2a3a44}
+.pad .up{grid-column:2;grid-row:1;justify-self:center;width:56px}
+.pad .dn{grid-column:2;grid-row:3;justify-self:center;width:56px}
+.pad .cw{grid-column:1;grid-row:2}.pad .ccw{grid-column:3;grid-row:2}
+.pad .rd{grid-column:2;grid-row:2;display:grid;grid-template-columns:1fr;gap:3px}
+.pad .rd div{background:#0f1519;border:1px solid var(--line);border-radius:5px;text-align:center;padding:1px 2px;font-family:var(--f-mono);font-size:13px;color:var(--value);display:flex;justify-content:space-between;gap:4px}
+.pad .rd div b{font-family:var(--f-disp);font-size:10px;color:var(--muted);letter-spacing:.06em;font-weight:500;align-self:center}
+.tbl{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
+.tbl th{font-family:var(--f-disp);font-size:11px;letter-spacing:.06em;color:var(--muted);font-weight:500;text-align:left;padding:5px 6px;border-bottom:1px solid var(--line)}
+.tbl td{padding:6px;border-bottom:1px solid var(--line);font-family:var(--f-mono)}
+.tbl td:first-child{font-family:var(--f-disp);color:var(--fg)}
+.tbl td small{display:block;font-size:10px;color:var(--muted);font-family:var(--f-mono)}
+.ok{color:var(--ok)}.wr{color:var(--warn)}.bd{color:var(--bad)}
+/* view stays next to the buttons: sticky view, controls right below it */
+.klay{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);grid-template-areas:"view ctl" "view info";gap:12px 14px;margin-bottom:24px;align-items:start}
+.kview{grid-area:view;position:sticky;top:8px;z-index:4;background:var(--bg)}
+.kctl{grid-area:ctl}.kinfo{grid-area:info}
+.pads{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pads .die{margin-top:0}
+@media (max-width:860px){
+  .klay{grid-template-columns:minmax(0,1fr);grid-template-areas:"view" "ctl" "info";gap:8px}
+  .kview{top:0;padding:4px 0;box-shadow:0 8px 14px rgba(0,0,0,.5)}
+  .kview .legend{display:none}
+  #kv{max-height:34vh}
+  #dv{max-height:44vh}
+}
+@media (max-width:420px){.pads{grid-template-columns:1fr 1fr;gap:6px}}
+/* stacker axis */
+.axis{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:12px}
+.ax-set .row{padding:6px 0}
+.bars{display:grid;gap:4px;margin-top:6px;font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.bars .b{position:relative;height:16px;background:#222a2f;border-radius:3px;overflow:hidden}
+.bars .b i{position:absolute;inset:0 auto 0 0;border-radius:3px}
+.bars .b span{position:absolute;left:6px;top:0;line-height:16px;color:#0f1519;font-weight:600;mix-blend-mode:normal}
+.bars .b .p{position:absolute;top:0;bottom:0;width:2px;background:#fff}
+.grp{font-family:var(--f-disp);font-size:11px;letter-spacing:.1em;color:var(--value);margin:12px 0 2px}
+.grp:first-child{margin-top:0}
+@media (max-width:600px){.axis{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div><div class="brand">TERMOFORM <b>ÖĞRENİYORUM</b></div><div class="copy">© 2026 Bekir Yenigün · Tüm hakları saklıdır</div></div>
+  <div class="pagename">KESME · DİZME AYARLARI</div>
+  <a class="back" href="index.html">‹ ÇEVRİM AYARLARI</a>
+  <nav class="tabs"><button data-tab="kesme" class="on">KESME</button><button data-tab="dizme">DİZME</button></nav>
+</div></header>
+
+<main class="wrap">
+<!-- ================= KESME ================= -->
+<section id="v-kesme">
+  <div class="assume"><b>NASIL ÇALIŞIR</b>
+    <ul><li>Üst kalıpta ısıtmalı çelik bıçaklar (100–150 °C), altta çelik kesme kalıbı var. Ürün alt kalıbın gözüne oturur, bıçak gözün etrafındaki çelik kenara vurur ve keser.</li>
+    <li>Kesme istasyonu ok butonları (◀ ▶) istasyonu komple, yani üst bıçak ve alt kalıbı birlikte levha akış yönünde sağa sola taşır. Her pals 0.25 mm.</li>
+    <li>Üst ve alt kalıbın her birinde <b style="color:inherit;font-family:inherit;letter-spacing:0">sol</b> ve <b style="color:inherit;font-family:inherit;letter-spacing:0">sağ</b> ayar motoru var, kalıbı ekranda yukarı aşağı (akışa dik) hareket ettirir. Her pals 0.10 mm. İkisi aynı yöne giderse kalıp yukarı/aşağı kayar, ters yöne giderse kalıp döner. Üst ve alt ayrı ayrı ayarlanır.</li></ul></div>
+  <div class="klay">
+    <div class="kview">
+      <div class="view"><svg id="kv" viewBox="0 0 640 400"></svg></div>
+      <div class="legend"><span><i style="background:var(--sheet)"></i>Ürün</span><span><i style="background:#9fb0ba"></i>Alt kalıp gözü</span><span><i style="background:var(--accent)"></i>Bıçak</span><span><i style="background:var(--ok)"></i>Kesti</span><span><i style="background:var(--bad)"></i>Kesmedi</span><span>Kaymalar 5 kat büyütülmüş</span></div>
+    </div>
+    <div class="card kctl">
+      <div class="row"><div class="nm">Kesme istasyonu<small>Üst ve alt kalıbı birlikte akış yönünde sağa sola taşır. 1 pals = 0.25 mm.</small></div>
+        <div class="arrows"><button data-st="-1" aria-label="Geri">◀</button><div class="v" id="stv"></div><button data-st="1" aria-label="İleri">▶</button></div></div>
+      <div class="pads">
+      <div class="die"><h3>ÜST KALIP · BIÇAK <small>1 pals = 0.10 mm</small></h3>
+        <div class="pad" data-die="U">
+          <button class="up" data-m="fw" aria-label="İkisi yukarı"><svg viewBox="0 0 24 24" fill="none" stroke="#5fcf8f" stroke-width="2.2" stroke-linecap="round"><path d="M7 19V6M4 9l3-3 3 3M17 19V6M14 9l3-3 3 3"/></svg></button>
+          <button class="ccw" data-m="ccw" aria-label="Sola döndür"><svg viewBox="0 0 24 24" fill="none" stroke="#f2a531" stroke-width="2.2" stroke-linecap="round"><path d="M20 12a8 8 0 1 1-3-6.2M17 2v4h-4"/></svg></button>
+          <div class="rd"><div><b>SOL</b><span data-r="UL"></span></div><div><b>SAĞ</b><span data-r="UR"></span></div></div>
+          <button class="cw" data-m="cw" aria-label="Sağa döndür"></button>
+          <button class="dn" data-m="bw" aria-label="İkisi aşağı"></button>
+        </div>
+      </div>
+      <div class="die"><h3>ALT KALIP · ÇELİK <small>1 pals = 0.10 mm</small></h3>
+        <div class="pad" data-die="L">
+          <button class="up" data-m="fw" aria-label="İkisi yukarı"><svg viewBox="0 0 24 24" fill="none" stroke="#5fcf8f" stroke-width="2.2" stroke-linecap="round"><path d="M7 19V6M4 9l3-3 3 3M17 19V6M14 9l3-3 3 3"/></svg></button>
+          <button class="ccw" data-m="ccw" aria-label="Sola döndür"><svg viewBox="0 0 24 24" fill="none" stroke="#f2a531" stroke-width="2.2" stroke-linecap="round"><path d="M20 12a8 8 0 1 1-3-6.2M17 2v4h-4"/></svg></button>
+          <div class="rd"><div><b>SOL</b><span data-r="LL"></span></div><div><b>SAĞ</b><span data-r="LR"></span></div></div>
+          <button class="cw" data-m="cw" aria-label="Sağa döndür"></button>
+          <button class="dn" data-m="bw" aria-label="İkisi aşağı"></button>
+        </div>
+      </div>
+      </div>
+      <div class="row" style="margin-top:6px"><div class="nm">Bıçak sıcaklığı<small>Çalışma bandı 100–150 °C.</small></div><div class="step" data-k="tk"><button data-d="-5">−</button><div class="v"></div><button data-d="5">+</button></div></div>
+      <div class="btns"><button class="btn pri" id="cut">TEST KESİMİ</button><button class="btn" id="scen">YENİ SENARYO</button><button class="btn" id="local">LOKAL KESMEME</button><button class="btn" id="paperx">KAĞITLARI KALDIR</button></div>
+      <p class="mode">Görev: "Yeni senaryo" kalıpları rastgele kaydırır ve döndürür. Akış yönündeki kaymayı istasyonla, yukarı aşağı kaymayı kalıp motorlarıyla düzelt: önce alt kalıbı ürüne oturt, sonra bıçağı ortala. Sağ uç ile sol uç farklıysa kalıp dönmüştür, döndürme butonlarını kullan. "Lokal kesmeme"de kesmeyen kenara dokunup altına kağıt koy.</p>
+    </div>
+    <div class="kinfo">
+      <table class="tbl" id="ktbl"></table>
+      <div class="status" id="kst"></div>
+      <div class="faults" id="kf"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DİZME ================= -->
+<section id="v-dizme" hidden>
+  <div class="assume"><b>NASIL ÇALIŞIR</b>
+    <ul><li>Dizme itici servo ile aşağı yukarı hareket eder. Her çevrimde ürünü <b style="color:inherit;font-family:inherit;letter-spacing:0">başlangıç</b> noktasından alıp <b style="color:inherit;font-family:inherit;letter-spacing:0">1. kademeye</b> iter ve geri döner. Ürünler 1. kademede üst üste dizilir.</li>
+    <li>İstenen adetin son ürününde itici <b style="color:inherit;font-family:inherit;letter-spacing:0">2. kademeye</b> kadar çıkar, yığın süpürme seviyesine gelir ve süpürme yığını konveyöre iter. 1. kademe durmadan yeniden dizmeye başlar.</li>
+    <li>İtici bir çevrimde gidip dönmeye yetişmelidir. <span style="color:var(--warn)">Hesapta:</span> %100 hız = 2500 mm/s, ürün 70 mm, her ürün yığını 8 mm yükseltir.</li></ul></div>
+  <div class="klay">
+    <div class="kview">
+      <div class="view"><svg id="dv" viewBox="0 0 640 530"></svg></div>
+      <div id="bars" class="bars"></div>
+    </div>
+    <div class="card ax-set kctl">
+      <h2>DİZME AYARLARI</h2>
+      <div class="grp">ADET</div>
+      <div class="row"><div class="nm">İstenen adet</div><div class="step" data-k="n"><button data-d="-1">−</button><div class="v"></div><button data-d="1">+</button></div></div>
+      <div class="grp">DİZME İTİCİ POZİSYONLARI</div>
+      <div class="row"><div class="nm">Başlangıç</div><div class="step" data-k="p0"><button data-d="-2">−</button><div class="v"></div><button data-d="2">+</button></div></div>
+      <div class="row"><div class="nm">1. kademe</div><div class="step" data-k="p1"><button data-d="-2">−</button><div class="v"></div><button data-d="2">+</button></div></div>
+      <div class="row"><div class="nm">1. kademe hızı</div><div class="step" data-k="v1"><button data-d="-1">−</button><div class="v"></div><button data-d="1">+</button></div></div>
+      <div class="row"><div class="nm">2. kademe</div><div class="step" data-k="p2"><button data-d="-2">−</button><div class="v"></div><button data-d="2">+</button></div></div>
+      <div class="row"><div class="nm">2. kademe hızı</div><div class="step" data-k="v2"><button data-d="-1">−</button><div class="v"></div><button data-d="1">+</button></div></div>
+      <div class="row"><div class="nm">Geri hız</div><div class="step" data-k="vb"><button data-d="-1">−</button><div class="v"></div><button data-d="1">+</button></div></div>
+      <div class="grp">SÜPÜRME</div>
+      <div class="row"><div class="nm">Pistonlu süpürme<small>Pnömatik: ayar yok.</small></div><button class="tog" id="pist" aria-label="Pistonlu süpürme"></button></div>
+      <div class="row sw"><div class="nm">İleri mesafe</div><div class="step" data-k="sd"><button data-d="-10">−</button><div class="v"></div><button data-d="10">+</button></div></div>
+      <div class="row sw"><div class="nm">İleri hız</div><div class="step" data-k="sf"><button data-d="-1">−</button><div class="v"></div><button data-d="1">+</button></div></div>
+      <div class="row sw"><div class="nm">Geri hız</div><div class="step" data-k="sb"><button data-d="-1">−</button><div class="v"></div><button data-d="1">+</button></div></div>
+      <div class="grp">MAKİNE</div>
+      <div class="row"><div class="nm">Çevrim / dk</div><div class="step" data-k="cpm"><button data-d="-1">−</button><div class="v"></div><button data-d="1">+</button></div></div>
+      <div class="btns"><button class="btn pri" id="run">BAŞLAT</button><button class="btn" id="slow">1x</button><button class="btn" id="dreset">FABRİKA AYARI</button></div>
+    </div>
+    <div class="kinfo">
+      <div class="counters"><span>Gerçek adet <b id="cnt">0</b></span><span>İtici <b id="pos">0</b> mm</span><span>Yığın <b id="hgt">0</b> mm</span><span>Konveyöre giden <b id="stk">0</b></span><span>Devrilen <b id="dev" style="color:var(--bad)">0</b></span></div>
+      <table class="tbl" id="dtbl"></table>
+      <div class="status" id="dst"></div>
+      <div class="faults" id="df"></div>
+    </div>
+  </div>
+</section>
+</main>
+<footer>© 2026 Bekir Yenigün · Tüm hakları saklıdır<br>İletişim ve destek: bekir.yenigun@gmail.com</footer>
+
+<script>
+const $=s=>document.querySelector(s);
+const f1=v=>(Math.round(v*10)/10).toFixed(1), f2=v=>(Math.round(v*100)/100).toFixed(2);
+const clamp=(v,r)=>Math.min(r[1],Math.max(r[0],Math.round(v*100)/100));
+const sg=v=>(v>0?"+":"")+f2(v);
+const faultHtml=out=>out.map(o=>`<div class="fault${o.bad?"":" warn"}"><b>${o.bad?"✖":"⚠"} ${o.t}</b><p>${o.w}</p><p class="fix">${o.x}</p></div>`).join("");
+
+// ================= KESME =================
+// Screen frame: flow runs left to right (X). The station arrows move BOTH dies together along X.
+// Each die has a SOL motor (left end) and a SAĞ motor (right end); both move the die up/down on screen (Y, up = +).
+// Same direction = die shifts up/down, opposite = die rotates. Products are fixed on the sheet.
+const F=3.0;
+const K={pul:0,UR:0,UL:0,LR:0,LL:0,tk:130};
+let E={sx:0.9,UR:2.1,UL:0.6,LR:-1.2,LL:0.4};   // hidden misplacement from the scenario (mm)
+let LOCAL=null, PAPER={}, CUT=null;
+const CAV=[]; for(let r=0;r<2;r++) for(let c=0;c<4;c++) CAV.push({col:c,t:c/3,x:70+c*130,y:70+r*150,w:80,h:110});
+const dxNow=()=>K.pul*0.25+E.sx;
+function dieY(d,t){ const L=K[d+"L"]+E[d+"L"], R=K[d+"R"]+E[d+"R"]; return L+(R-L)*t; }
+function cavState(t){                          // t = 0 left end … 1 right end
+  const low=dieY("L",t), up=dieY("U",t), k=up-low;
+  return {seat:low, landT:F+k, landB:F-k, flT:F+up, flB:F-up, up, low};
+}
+function sideCuts(st,side){
+  if(K.tk<85) return false;
+  if(side==="ust") return st.landT>=0.2;
+  if(side==="alt") return st.landB>=0.2;
+  return true;                                  // left/right edges: both dies ride on the station together
+}
+const SIDES=["sol","sag","ust","alt"], SN={sol:"sol",sag:"sağ",ust:"üst",alt:"alt"};
+const ENDS=[["Sol uç (1 · 5. gözler)",0,"SOL"],["Sağ uç (4 · 8. gözler)",1,"SAĞ"]];
+function doCut(){ const res={}; CAV.forEach((c,i)=>{ const st=cavState(c.t); for(const s of SIDES){ let ok=sideCuts(st,s); if(LOCAL&&LOCAL.c===i&&LOCAL.s===s&&!(PAPER[i+":"+s]>=1)) ok=false; res[i+":"+s]=ok; } }); return res; }
+function kFaults(){
+  const out=[], dx=dxNow(), pals=v=>Math.max(1,Math.round(Math.abs(v)/0.25));
+  // along the flow: only the station fixes it
+  if(Math.abs(dx)>1.5) out.push({bad:1,t:"Akış yönünde ürün alt kalıba oturmuyor",w:`Kalıplar ürüne göre ${f2(Math.abs(dx))} mm ${dx>0?"ileride (akış yönünde)":"geride"}. Ürün gözün içine girmiyor, çelik kenarın üstüne biniyor; bıçak inince ağız ezilir veya kırılır.`,x:`Kesme istasyonunu ${dx>0?"geri (◀)":"ileri (▶)"} al: yaklaşık ${pals(dx)} pals.`});
+  else if(Math.abs(dx)>0.8) out.push({bad:0,t:"Akış yönünde ürün zor oturuyor",w:`Kalıplar ${f2(Math.abs(dx))} mm kaymış. Ürün göze sürterek giriyor, ağız kenarında iz kalır.`,x:`Kesme istasyonunu ${dx>0?"geri (◀)":"ileri (▶)"} al: yaklaşık ${pals(dx)} pals.`});
+  else if(Math.abs(dx)>0.5) out.push({bad:0,t:"Flanş solda ve sağda eşit değil",w:`Sol ${f1(F+dx)} mm, sağ ${f1(F-dx)} mm.`,x:`Kesme istasyonunu ${dx>0?"geri (◀)":"ileri (▶)"} al: yaklaşık ${pals(dx)} pals.`});
+  // across the flow: each die by its own motors; merge when both ends show the same fault
+  const per=ENDS.map(([nm,t,mot])=>{ const s=cavState(t), f={};
+    if(Math.abs(s.seat)>1.5) f.seat={bad:1,t:"ürün alt kalıba oturmuyor",w:`Alt kalıbın gözleri ürüne göre ${f1(Math.abs(s.seat))} mm ${s.seat>0?"yukarıda":"aşağıda"}. Ürün göze girmiyor, çelik kenara biniyor.`,dir:s.seat>0?"aşağı":"yukarı",die:"Alt kalıbı"};
+    else if(Math.abs(s.seat)>0.8) f.seat={bad:0,t:"ürün alt kalıba zor oturuyor",w:`Alt kalıp ${f1(Math.abs(s.seat))} mm ${s.seat>0?"yukarı":"aşağı"} kaymış. Ürün göze sürterek giriyor.`,dir:s.seat>0?"aşağı":"yukarı",die:"Alt kalıbı"};
+    if(s.landT<0.2) f.top={bad:1,t:"üst kenar kesmiyor",w:"Bıçak üst kenarda alt kalıbın gözüne, yani boşluğa geliyor. Altında çelik yok, kesmez.",dir:"yukarı",die:"Üst kalıbı"};
+    if(s.landB<0.2) f.bot={bad:1,t:"alt kenar kesmiyor",w:"Bıçak alt kenarda alt kalıbın gözüne geliyor, altında çelik yok.",dir:"aşağı",die:"Üst kalıbı"};
+    if(s.landT>=0.2&&s.landB>=0.2&&Math.abs(s.flT-s.flB)>1) f.fl={bad:0,t:"flanş üstte ve altta eşit değil",w:`Üst ${f1(s.flT)} mm, alt ${f1(s.flB)} mm.`,dir:s.flT>s.flB?"aşağı":"yukarı",die:`Bıçağı yaklaşık ${Math.round(Math.abs(s.flT-s.flB)/2/0.1)} pals`};
+    return {nm,mot,f}; });
+  for(const key of ["seat","top","bot","fl"]){ const a=per[0].f[key], b=per[1].f[key];
+    if(a&&b&&a.dir===b.dir) out.push({bad:a.bad||b.bad,t:`Tüm gözler: ${a.t}`,w:a.w,x:`${a.die} ${a.dir} al: iki motor birlikte (${a.dir==="yukarı"?"⇈":"⇊"}).`});
+    else for(const e of per){ const o=e.f[key]; if(o) out.push({bad:o.bad,t:`${e.nm}: ${o.t}`,w:o.w,x:`${o.die} ${o.dir} al: ${e.mot} motor (0.10 mm/pals).`}); } }
+  const rot=(d,nm)=>{ const L=K[d+"L"]+E[d+"L"], R=K[d+"R"]+E[d+"R"]; if(Math.abs(R-L)>0.6) out.push({bad:0,t:`${nm} dönmüş`,w:`Sağ uç ile sol uç arasında ${f1(Math.abs(R-L))} mm fark var, kalıp levhaya göre çapraz duruyor.`,x:`${nm==="Alt kalıp"?"Alt kalıbı":"Üst kalıbı"} ${R>L?"saat yönünde":"saat yönü tersine"} döndür.`}); };
+  rot("L","Alt kalıp"); rot("U","Bıçak (üst kalıp)");
+  if(K.tk<85) out.push({bad:1,t:"Bıçak soğuk, hiç kesmiyor",w:`Bıçak ${K.tk} °C. Plastik yumuşamadığı için bıçak levhayı ezer ama kesmez.`,x:"Bıçak ısıtmasını 100–150 °C bandına getir. Isıtma açık ama ısınmıyorsa rezistans veya termokupla bak."});
+  else if(K.tk<100) out.push({bad:0,t:"Bıçak soğuk: tüylenme ve çapak",w:`Bıçak ${K.tk} °C. Kesim yırtarak oluyor, kenarda ince plastik teller ve çapak kalır.`,x:"Sıcaklığı 100 °C'nin üstüne çıkar."});
+  else if(K.tk>170) out.push({bad:1,t:"Bıçak çok sıcak: kenar eriyor",w:`Bıçak ${K.tk} °C. Ağız eriyip kalınlaşıyor, plastik bıçağa yapışıp ip çekiyor.`,x:"Sıcaklığı 150 °C'nin altına indir, bıçağa yapışan plastiği temizle."});
+  else if(K.tk>150) out.push({bad:0,t:"Bıçak sıcaklığı yüksek",w:`Bıçak ${K.tk} °C. Kenarda erime ve ip çekme başlar.`,x:"Sıcaklığı 150 °C'nin altına indir."});
+  if(CUT&&LOCAL&&!CUT[LOCAL.c+":"+LOCAL.s]&&sideCuts(cavState(CAV[LOCAL.c].t),LOCAL.s)) out.push({bad:1,t:`${LOCAL.c+1}. gözün ${SN[LOCAL.s]} kenarı lokal kesmiyor`,w:"Ayar doğru ama bu noktada bıçak çeliğe yeterince basmıyor. Bıçak ya da çelik o noktada aşınmış veya çökmüş olabilir.",x:"Görünümde kesmeyen kenara dokun: alt çeliğin altına o noktaya bir parça A4 kağıdı koyulur, nokta yükselir ve bıçak keser. Sonra tekrar test kesimi yap."});
+  for(const k in PAPER) if(PAPER[k]>=3){ const [c,s]=k.split(":"); out.push({bad:0,t:`${+c+1}. göz ${SN[s]} kenarda fazla kağıt`,w:`${PAPER[k]} kat kağıt var. Nokta fazla yükseldi, bıçak oraya sert vurur; bıçak körelir, çelik ezilir.`,x:"Kağıdı azalt, genelde 1 kat yeterlidir."}); }
+  return out;
+}
+function drawK(){
+  const s=5, cl=v=>Math.max(-8,Math.min(8,v)), dx=cl(dxNow());     // 5x exaggeration of the shifts
+  const T=`fill="#8ea3ae" font-family="Chakra Petch" letter-spacing="1"`;
+  let g=`<defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#8ea3ae"/></marker></defs><rect width="640" height="400" fill="#0d1317"/>`;
+  g+=`<text x="20" y="28" ${T} font-size="12" letter-spacing="1.5">KESME İSTASYONU · ÜSTTEN</text>`;
+  g+=`<text x="16" y="200" ${T} font-size="10" transform="rotate(-90 16 200)" text-anchor="middle">SOL MOTOR ↕</text><text x="628" y="200" ${T} font-size="10" transform="rotate(-90 628 200)" text-anchor="middle">SAĞ MOTOR ↕</text>`;
+  g+=`<line x1="250" y1="388" x2="400" y2="388" stroke="#8ea3ae" stroke-width="1.5" marker-end="url(#ar)"/><text x="325" y="382" fill="#8ea3ae" font-size="10" text-anchor="middle" font-family="IBM Plex Mono">AKIŞ YÖNÜ · İSTASYON ◀ ▶</text>`;
+  // lower steel plate: shifted by the station (X) and by the motors (Y), rotated by the left/right difference
+  const L0=cl(dieY("L",0)), L1=cl(dieY("L",1)), ang=-Math.atan2((L1-L0)*s,390)*180/Math.PI, mid=(L0+L1)/2*s;
+  g+=`<g transform="translate(${dx*s} ${-mid}) rotate(${ang} 320 200)"><rect x="40" y="48" width="560" height="304" rx="6" fill="#55626b" stroke="#77848c"/></g>`;
+  CAV.forEach((c,i)=>{ const st=cavState(c.t), lx=c.x+dx*s, ly=c.y-cl(st.low)*s, pad=F*s;
+    g+=`<rect x="${lx-4}" y="${ly-4}" width="${c.w+8}" height="${c.h+8}" rx="8" fill="#1a2024" stroke="#9fb0ba" stroke-width="1.5"/>`;            // cavity
+    g+=`<rect x="${c.x}" y="${c.y}" width="${c.w}" height="${c.h}" rx="7" fill="#d43d32"/><rect x="${c.x+8}" y="${c.y+8}" width="${c.w-16}" height="${c.h-16}" rx="5" fill="#a82f27"/>`; // product
+    const kx=c.x+dx*s-pad, ky=c.y-cl(st.up)*s-pad, kw=c.w+2*pad, kh=c.h+2*pad;
+    const seg={sol:[kx,ky,kx,ky+kh],sag:[kx+kw,ky,kx+kw,ky+kh],ust:[kx,ky,kx+kw,ky],alt:[kx,ky+kh,kx+kw,ky+kh]};
+    for(const sd of SIDES){ const [x1,y1,x2,y2]=seg[sd], key=i+":"+sd, ok=CUT?CUT[key]:null;
+      g+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${ok===null?"#f2a531":ok?"#5fcf8f":"#ef5d4d"}" stroke-width="${ok===false?4:2.5}" stroke-dasharray="${ok===false?"6 4":ok?"":"7 4"}" stroke-linecap="round"/>`;
+      const p=PAPER[key]; if(p){ const mx=(x1+x2)/2, my=(y1+y2)/2; g+=`<rect x="${mx-9}" y="${my-9}" width="18" height="18" fill="#f4f1e8" stroke="#999" transform="rotate(8 ${mx} ${my})"/><text x="${mx}" y="${my+4}" fill="#333" font-size="11" text-anchor="middle" font-family="IBM Plex Mono">${p}</text>`; }
+      g+=`<rect class="hit" data-hit="${key}" x="${Math.min(x1,x2)-8}" y="${Math.min(y1,y2)-8}" width="${Math.abs(x2-x1)+16}" height="${Math.abs(y2-y1)+16}" fill="transparent"/>`; }
+    g+=`<text x="${c.x+c.w/2}" y="${c.y+c.h/2+5}" fill="#ffffffb0" font-size="13" text-anchor="middle" font-family="IBM Plex Mono" pointer-events="none">${i+1}</text>`;
+  });
+  $("#kv").innerHTML=g;
+  const cls=(v,a,b)=>Math.abs(v)>b?"bd":Math.abs(v)>a?"wr":"ok", lc=v=>v<0.2?"bd":v<0.8?"wr":"ok", dxv=dxNow();
+  let t=`<tr><th></th><th>Oturma</th><th>Bıçak çelikte</th><th>Flanş</th></tr>`;
+  t+=`<tr><td>Akış yönü<br><small>istasyon · sol / sağ</small></td><td class="${cls(dxv,0.8,1.5)}">${sg(dxv)} mm</td><td class="ok">${f1(F)} / ${f1(F)}</td><td><span class="${cls(dxv,0.5,0.8)}">${f1(F+dxv)} / ${f1(F-dxv)}</span></td></tr>`;
+  for(const [nm,tt] of ENDS){ const s=cavState(tt); t+=`<tr><td>${nm.split(" (")[0]}<br><small>üst / alt</small></td><td class="${cls(s.seat,0.8,1.5)}">${sg(s.seat)} mm</td><td><span class="${lc(s.landT)}">${f1(s.landT)}</span> / <span class="${lc(s.landB)}">${f1(s.landB)}</span></td><td><span class="${lc(s.flT)}">${f1(s.flT)}</span> / <span class="${lc(s.flB)}">${f1(s.flB)}</span></td></tr>`; }
+  $("#ktbl").innerHTML=t;
+  const out=kFaults(), bad=out.some(o=>o.bad), st=$("#kst");
+  st.className="status"+(bad?" bad":out.length?" warn":"");
+  st.textContent=bad?"✖ KESİM HATALI":out.length?"⚠ KESİYOR AMA AYAR GEREKİYOR":"✔ KESİM DOĞRU: ürün oturuyor, bıçak ortada, sıcaklık bantta";
+  if(CUT) st.textContent+=` · son test: ${Object.values(CUT).filter(Boolean).length}/32 kenar kesti`;
+  $("#kf").innerHTML=faultHtml(out);
+  $("#stv").innerHTML=`${K.pul>0?"+":""}${K.pul} pals<small>${sg(K.pul*0.25)} mm</small>`;
+  for(const k of ["UR","UL","LR","LL"]) document.querySelector(`[data-r="${k}"]`).textContent=sg(K[k]);
+  document.querySelector('[data-k="tk"] .v').innerHTML=K.tk+"<small>°C</small>";
+}
+
+// ================= DİZME =================
+const CUP=70, NEST=8, VMAX=2500, SW=1000, CLEAR=300, PISTV=400;
+const D0={n:50,wt:0,sk:1,p0:30,p1:332,v1:27,p2:484,v2:73,vb:75,ra:0.33,sd:340,sf:30,sb:60,cpm:40};
+const D={...D0};
+const DR={n:[5,90,"ad",0],wt:[0,1.5,"s",2],sk:[1,30,"ad",0],p0:[0,200,"mm",0],p1:[50,600,"mm",0],v1:[5,100,"%",0],p2:[60,800,"mm",0],v2:[5,100,"%",0],vb:[5,100,"%",0],ra:[0.05,1,"s",2],sd:[150,500,"mm",0],sf:[5,100,"%",0],sb:[5,100,"%",0],cpm:[10,60,"",0]};
+let PIST=false;
+const stackH=n=>CUP+(n-1)*NEST;
+const vTip=H=>Math.max(60,Math.round(1400-H*2));     // fastest push (mm/s) before a stack of height H tips
+// time of one move: distance d at speed pct; the ramp is the time to reach 100 %, so it scales with speed
+function mv(d,pct){ const v=VMAX*pct/100, ta=D.ra*pct/100; d=Math.abs(d); if(d<=0) return 0; return d/v>ta? d/v+ta : 2*Math.sqrt(d*ta/v); }
+function dCalc(){
+  const P=60/D.cpm, d1=D.p1-D.p0, d2=D.p2-D.p1;
+  const T1=mv(d1,D.v1)+mv(d1,D.vb);
+  const T2=mv(d1,D.v1)+mv(d2,D.v2)+D.wt+mv(d1+d2,D.vb);
+  const H=stackH(D.n), vf=PIST?PISTV:SW*D.sf/100, vb=PIST?PISTV:SW*D.sb/100, sd=PIST?CLEAR+40:D.sd;
+  const tSw=sd/vf+sd/vb, swStart=D.sk*P, window=(D.n-1)*P;
+  return {P,d1,d2,T1,T2,H,vf,vb,sd,tSw,swStart,window};
+}
+function dFaults(){
+  const C=dCalc(), out=[];
+  if(D.p1<=D.p0+20) out.push({bad:1,t:"1. kademe başlangıca çok yakın",w:`Başlangıç ${D.p0} mm, 1. kademe ${D.p1} mm. İtici ürünü yığına kadar itemiyor.`,x:"1. kademeyi başlangıçtan yukarıda tut."});
+  if(D.p2<=D.p1+20) out.push({bad:1,t:"2. kademe 1. kademenin üstünde değil",w:`1. kademe ${D.p1} mm, 2. kademe ${D.p2} mm. Yığın süpürme seviyesine çıkamıyor, süpürme yığını yakalayamaz.`,x:"2. kademeyi 1. kademenin yeterince üstüne al."});
+  if(C.T1>C.P+0.005) out.push({bad:1,t:"Dizme çevrime yetişmiyor",w:`İtici başlangıçtan 1. kademeye gidip dönmek için ${f2(C.T1)} s harcıyor ama çevrim ${f2(C.P)} s. Sonraki ürün geldiğinde itici henüz aşağıda değil, ürün iticiye çarpar.`,x:"1. kademe hızını veya geri hızı artır, ya da başlangıç ile 1. kademe arasını kısalt."});
+  if(C.T2>C.P+0.005&&C.d2>20) out.push({bad:1,t:"2. kademe hareketi çevrime sığmıyor",w:`Son üründe itici 2. kademeye çıkıp dönmek için ${f2(C.T2)} s harcıyor, çevrim ${f2(C.P)} s.`,x:"2. kademe hızını veya geri hızı artır."});
+  if(D.v1>60) out.push({bad:0,t:"1. kademe hızı yüksek",w:`%${D.v1} ile ürün yığına sert çarpıyor, ağızlar ezilebilir. (Bu sınır tahmini, sahadaki değere göre düzeltilecek.)`,x:"Çevrime yetiştiği sürece 1. kademe hızını düşük tut."});
+  if(C.H>540) out.push({bad:1,t:"Yığın çok yüksek",w:`${D.n} adet ${C.H} mm'lik yığın yapıyor; 2. kademeye çıkarken dengede durmaz.`,x:"İstenen adedi azalt."});
+  if(C.vf>vTip(C.H)) out.push({bad:1,t:"Süpürmede yığın devriliyor",w:PIST?`Piston sabit ve hızlı iter (~${PISTV} mm/s). ${C.H} mm'lik yığın bu darbede devrilir.`:`${C.H} mm'lik yığını ${Math.round(C.vf)} mm/s ile itince üstü geride kalıp devriliyor. Bu yükseklik için en fazla %${Math.floor(vTip(C.H)/SW*100)} olmalı.`,x:PIST?"İstenen adedi azalt. Piston hızı kısma valfinden ayarlanabiliyorsa bakımcıya düşürt.":`Süpürme ileri hızını %${Math.floor(vTip(C.H)/SW*100)} altına indir ya da adedi azalt.`});
+  if(!PIST&&D.sd<CLEAR) out.push({bad:1,t:"Yığın konveyöre tam geçmedi",w:`Süpürme ${D.sd} mm gidiyor, yığının konveyöre tam geçmesi için en az ${CLEAR} mm gerekli.`,x:`İleri mesafeyi en az ${CLEAR} mm yap.`});
+  if(C.swStart+C.tSw>C.window) out.push({bad:1,t:"Süpürme bitmeden yeni yığın geliyor",w:`Süpürme ${f2(C.tSw)} s sürüyor; bitişi ${f2(C.swStart+C.tSw)} s. Sonraki yığın ${f2(C.window)} s sonra 2. kademeye çıkıyor.`,x:"Süpürme ileri ve geri hızını artır ya da ileri mesafeyi kısalt."});
+  return {out,C};
+}
+// ---------- stacker animation: real-time motion profile ----------
+let A={run:false,speed:1,t:0,count:0,phase:"up1",pos:0,fly:[],done:0,fell:0,last:0,arm:0,armDir:0,swPending:null};
+function prof(t,d,pct){ // position along a move of length d after t seconds (trapezoid)
+  const v=VMAX*pct/100, ta=D.ra*pct/100, T=mv(d,pct); if(t>=T) return d; if(t<=0) return 0;
+  if(d/v>ta){ const a=v/ta; if(t<ta) return 0.5*a*t*t; if(t<T-ta) return 0.5*a*ta*ta+v*(t-ta); const r=T-t; return d-0.5*a*r*r; }
+  const th=T/2, a=d/(th*th); return t<th?0.5*a*t*t:d-0.5*a*(T-t)*(T-t);
+}
+function drawD(){
+  const {out,C}=dFaults(), y0=510, sc=0.62, X=400, yOf=p=>y0-30-p*sc;   // vertical axis: mm -> px
+  const TW=150, TH=34;                                                // tray top width, depth
+  let g=`<rect width="640" height="530" fill="#0d1317"/><text x="624" y="24" text-anchor="end" fill="#8ea3ae" font-size="12" font-family="Chakra Petch" letter-spacing="1.5">DİZME İTİCİ</text>`;
+  // tray shape: open V with flat bottom (own drawing)
+  const tray=(y,stroke,op,dash)=>`<path d="M${X-TW/2},${y-TH} L${X-TW/2+8},${y-TH-6} M${X-TW/2+8},${y-TH} L${X-TW/2+30},${y} L${X+TW/2-30},${y} L${X+TW/2-8},${y-TH} M${X+TW/2-8},${y-TH} L${X+TW/2},${y-TH-6}" fill="none" stroke="${stroke}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity="${op}" ${dash?'stroke-dasharray="6 6"':''}/>`;
+  const L=[{p:D.p0,t:"BAŞLANGIÇ",v:D.p0+" mm",c:"#8ea3ae"},{p:D.p1,t:"1. KADEME",v:D.p1+" mm",c:"#5fcf8f"},{p:D.p2,t:"2. KADEME",v:D.p2+" mm",c:"#8fd8e6"}];
+  // guide rails from level 1 up past level 2
+  const rt=yOf(D.p2)-TH-26, rb=yOf(D.p1)+6;
+  g+=`<rect x="${X-TW/2-16}" y="${rt}" width="9" height="${rb-rt}" rx="3" fill="#4a5b66"/><rect x="${X+TW/2+7}" y="${rt}" width="9" height="${rb-rt}" rx="3" fill="#4a5b66"/>`;
+  // ghost trays + labels with dashed leaders on the left
+  for(const l of L){ const y=yOf(l.p);
+    g+=tray(y,l.c,.28,true);
+    g+=`<line x1="150" y1="${y-TH/2}" x2="${X-TW/2-20}" y2="${y-TH/2}" stroke="${l.c}" stroke-dasharray="5 5" opacity=".75"/>`;
+    g+=`<text x="16" y="${y-TH/2-4}" fill="${l.c}" font-size="12" font-family="Chakra Petch" font-weight="600" letter-spacing="1">${l.t}</text><text x="16" y="${y-TH/2+13}" fill="#e2eaee" font-size="14" font-family="IBM Plex Mono">${l.v}</text>`; }
+  // speed labels between the levels, with direction arrows
+  const sp=(y,t,v,dir,c)=>`<text x="16" y="${y-2}" fill="#8ea3ae" font-size="11" font-family="Chakra Petch" letter-spacing="1">${t}</text><text x="16" y="${y+14}" fill="${c}" font-size="14" font-family="IBM Plex Mono">%${v}</text><line x1="150" y1="${y+4}" x2="${X-TW/2-30}" y2="${y+4}" stroke="${c}" stroke-dasharray="2 5" opacity=".6"/><path d="M${X-TW/2-30},${y+4+(dir<0?10:-10)} L${X-TW/2-30},${y+4+(dir<0?-10:10)} M${X-TW/2-35},${y+4+(dir<0?-4:4)} L${X-TW/2-30},${y+4+(dir<0?-10:10)} L${X-TW/2-25},${y+4+(dir<0?-4:4)}" stroke="${c}" stroke-width="2" fill="none"/>`;
+  g+=sp((yOf(D.p0)+yOf(D.p1))/2-TH/2,"1. KADEME HIZI",D.v1,-1,"#5fcf8f");
+  g+=sp((yOf(D.p1)+yOf(D.p2))/2-TH/2,"2. KADEME HIZI",D.v2,-1,"#8fd8e6");
+  g+=sp((yOf(D.p0)+yOf(D.p1))/2-TH/2+44,"GERİ HIZ",D.vb,1,"#f2c94c");
+  // stack held on level 1 (lifts with the tray during the 2nd level stroke)
+  const lift=(A.phase==="up2"||A.phase==="wait")?Math.max(0,A.pos-D.p1)*sc:0;
+  const ch=TH-4, cup=(ytop,col)=>`<path d="M${X-TW/2+12},${ytop} L${X+TW/2-12},${ytop} L${X+TW/2-34},${ytop+ch} L${X-TW/2+34},${ytop+ch} Z" fill="${col}" stroke="#7a1f19" stroke-width=".8"/>`;
+  const shown=Math.min(A.count,16);
+  for(let i=0;i<shown;i++) g+=cup(yOf(D.p1)-ch-2-i*NEST*sc*0.55-lift,i%2?"#e2453a":"#d23c32");
+  // live tray on its column
+  const hy=yOf(A.pos);
+  if(A.phase==="up1"||A.phase==="up2") g+=cup(hy-ch-2,"#ff6a5c");
+  g+=tray(hy,"#cfd8dc",1,false);
+  g+=`<rect x="${X-8}" y="${hy+2}" width="16" height="${Math.max(0,y0-hy-14)}" fill="#55626b"/><rect x="${X-60}" y="${y0-12}" width="120" height="10" rx="2" fill="#55626b"/>`;
+  // conveyor at level 2 and swept stacks
+  const cy=yOf(D.p2)-TH-2;
+  { const cx0=X+TW/2+20, cx1=628, bh=12, off=((performance.now()/1000)*(A.run?60*A.speed:0))%24;
+    g+=`<line x1="${cx0+14}" y1="${cy+bh}" x2="${cx0+14}" y2="${cy+52}" stroke="#9aa7af" stroke-width="3"/><line x1="${cx1-14}" y1="${cy+bh}" x2="${cx1-14}" y2="${cy+52}" stroke="#9aa7af" stroke-width="3"/><line x1="${cx0+8}" y1="${cy+52}" x2="${cx1-8}" y2="${cy+52}" stroke="#9aa7af" stroke-width="2"/>`;
+    g+=`<rect x="${cx0}" y="${cy}" width="${cx1-cx0}" height="${bh}" rx="${bh/2}" fill="#eef2f4" stroke="#ffffff" stroke-width="1.5"/>`;
+    g+=`<line x1="${cx0+bh/2}" y1="${cy+bh/2}" x2="${cx1-bh/2}" y2="${cy+bh/2}" stroke="#b9c4ca" stroke-width="1.5" stroke-dasharray="10 14" stroke-dashoffset="${-off}"/>`;
+    g+=`<circle cx="${cx0+bh/2}" cy="${cy+bh/2}" r="${bh/2-2}" fill="#c9d3d8" stroke="#8a979e"/><circle cx="${cx1-bh/2}" cy="${cy+bh/2}" r="${bh/2-2}" fill="#c9d3d8" stroke="#8a979e"/>`;
+    g+=`<text x="${(cx0+cx1)/2}" y="${cy+32}" fill="#eef2f4" font-size="11" text-anchor="middle" font-family="Chakra Petch" letter-spacing="2">KONVEYÖR ➜</text>`; }
+  for(const f of A.fly){ for(let i=0;i<8;i++){ const yt=cy-ch-i*NEST*sc*0.55; g+=`<g transform="translate(${f.x-X} 0) rotate(${f.rot} ${X} ${cy})"><path d="M${X-40},${yt} L${X+40},${yt} L${X+28},${yt+ch} L${X-28},${yt+ch} Z" fill="${f.fall?"#ef5d4d":(i%2?"#e2453a":"#d23c32")}" stroke="#7a1f19" stroke-width=".8"/></g>`; } }
+  // sweep arm: dark yellow, moves toward the conveyor; dashed ghosts at the back and forward positions
+  const SY="#d99a1e", ax0=X-TW/2-14, ax1=ax0+C.sd*0.6, ax=ax0+A.arm*0.6, ah=70, at=cy-ah-2;
+  const ghost=x=>`<rect x="${x}" y="${at}" width="10" height="${ah}" rx="2" fill="none" stroke="${SY}" stroke-dasharray="4 4" opacity=".7"/>`;
+  g+=ghost(ax0)+ghost(ax1);
+  g+=`<text x="${ax0+5}" y="${at-8}" fill="${SY}" font-size="10" text-anchor="middle" font-family="Chakra Petch" letter-spacing="1">GERİ</text><text x="${ax1+5}" y="${at-8}" fill="${SY}" font-size="10" text-anchor="middle" font-family="Chakra Petch" letter-spacing="1">İLERİ</text>`;
+  const dy=at-30;
+  g+=`<line x1="${ax0+5}" y1="${dy}" x2="${ax1+5}" y2="${dy}" stroke="${SY}" stroke-dasharray="5 4"/><path d="M${ax0+11},${dy-4} L${ax0+5},${dy} L${ax0+11},${dy+4} M${ax1-1},${dy-4} L${ax1+5},${dy} L${ax1-1},${dy+4}" stroke="${SY}" fill="none" stroke-width="1.5"/>`;
+  g+=`<text x="${(ax0+ax1)/2+5}" y="${dy-8}" fill="${SY}" font-size="12" text-anchor="middle" font-family="IBM Plex Mono">${PIST?"PİSTONLU SÜPÜRME · ayar yok":`SÜPÜRME İLERİ ${D.sd} mm`}</text>`;
+  if(!PIST) g+=`<text x="${(ax0+ax1)/2+5}" y="${dy+16}" fill="#e2eaee" font-size="11" text-anchor="middle" font-family="IBM Plex Mono">ileri %${D.sf} ➜   ⬅ geri %${D.sb}</text>`;
+  g+=`<rect x="${ax0}" y="${at+ah/2-3}" width="${Math.max(0,ax-ax0)}" height="6" fill="#6b5320"/><rect x="${ax}" y="${at}" width="10" height="${ah}" rx="2" fill="${SY}"/>`;
+  $("#dv").innerHTML=g;
+  const P=C.P, bar=(t,lab,col)=>`<div>${lab}</div><div class="b"><i style="width:${Math.min(100,t/P*100)}%;background:${t>P?"#ef5d4d":col}"></i><span>${f2(t)} s / ${f2(P)} s</span></div>`;
+  $("#bars").innerHTML=bar(C.T1,"Normal vuruş (başlangıç → 1. kademe → geri)","#5fcf8f")+bar(C.T2,"Son ürün (2. kademeye çıkış ve dönüş)","#8fd8e6");
+  $("#cnt").textContent=A.count; $("#pos").textContent=Math.round(A.pos); $("#hgt").textContent=stackH(Math.max(1,A.count)); $("#stk").textContent=A.done; $("#dev").textContent=A.fell;
+}
+function dPanel(){
+  const {out,C}=dFaults(), bad=out.some(o=>o.bad), st=$("#dst");
+  st.className="status"+(bad?" bad":out.length?" warn":"");
+  st.textContent=bad?"✖ DİZME HATALI":out.length?"⚠ ÇALIŞIR AMA AYAR GEREKİYOR":`✔ DİZME DOĞRU · itici ${f2(C.T1)} s'de dönüyor, çevrim ${f2(C.P)} s`;
+  $("#df").innerHTML=faultHtml(out);
+  $("#dtbl").innerHTML=`<tr><th>Hareket</th><th>Yol</th><th>Süre</th></tr>
+   <tr><td>Başlangıç → 1. kademe</td><td>${C.d1} mm · %${D.v1}</td><td>${f2(mv(C.d1,D.v1))} s</td></tr>
+   <tr><td>1. kademe → başlangıç</td><td>${C.d1} mm · %${D.vb}</td><td>${f2(mv(C.d1,D.vb))} s</td></tr>
+   <tr><td>1. → 2. kademe (son ürün)</td><td>${C.d2} mm · %${D.v2}</td><td>${f2(mv(C.d2,D.v2))} s</td></tr>
+   <tr><td>Süpürme ileri + geri</td><td>${C.sd} mm</td><td>${f2(C.tSw)} s</td></tr>`;
+  for(const k in D){ const r=DR[k], el=document.querySelector(`[data-k="${k}"] .v`); if(el) el.innerHTML=(r[3]?Number(D[k]).toFixed(r[3]):D[k])+`<small>${r[2]}</small>`; }
+  document.querySelectorAll(".row.sw").forEach(r=>r.classList.toggle("lock",PIST)); $("#pist").classList.toggle("on",PIST);
+}
+function tick(now){
+  let dt=Math.min(0.05,(now-(A.last||now))/1000); A.last=now;
+  if(A.run){
+    dt*=A.speed; const {out,C}=dFaults(); A.t+=dt;
+    const last=A.count===D.n-1;
+    if(A.phase==="up1"){ A.pos=D.p0+prof(A.t,C.d1,D.v1); if(A.t>=mv(C.d1,D.v1)){ A.t=0; if(last){A.phase="up2";} else {A.count++; A.phase="down";} } }
+    else if(A.phase==="up2"){ A.pos=D.p1+prof(A.t,C.d2,D.v2); if(A.t>=mv(C.d2,D.v2)){ A.t=0; A.phase="wait"; } }
+    else if(A.phase==="wait"){ if(A.t>=D.wt){ A.t=0; A.phase="down"; const fail=out.find(o=>o.bad&&/devril|yüksek|tam geçmedi/.test(o.t));
+        A.fly.push({x:400,rot:0,phase:"wait",fall:fail?fail.t:null,short:fail&&/tam geçmedi/.test(fail.t)}); A.count=0; A.swPending=D.sk; } }
+    else if(A.phase==="down"){ const from=A.prevTop||D.p1; A.pos=Math.max(D.p0,(A.downFrom??D.p1)-prof(A.t,(A.downFrom??D.p1)-D.p0,D.vb));
+        if(A.t>=mv((A.downFrom??D.p1)-D.p0,D.vb)){ A.pos=D.p0; A.downFrom=null; A.wait2=Math.max(0,C.P-(A.cycT||0)); A.t=0; A.phase="idle"; } }
+    else if(A.phase==="idle"){ if(A.t>=A.wait2){ A.t=0; A.phase="up1"; A.cycT=0; if(A.swPending!=null){ A.swPending--; if(A.swPending<=0){ A.armDir=1; A.swPending=null; } } } }
+    if(A.phase==="wait"||A.phase==="up2") A.downFrom=A.pos;
+    A.cycT=(A.cycT||0)+dt;
+    for(const f of A.fly){
+      if(f.phase==="wait"&&A.armDir===1) f.phase="push";
+      if(f.phase==="push"){ f.x=400+Math.max(0,A.arm*0.6-60); if(f.fall&&!f.short&&A.arm>60) f.phase="fall"; if(A.arm>=C.sd) f.phase=f.short?"stuck":"conv"; }
+      else if(f.phase==="conv"){ f.x+=dt*180; if(f.x>660){ f.gone=1; A.done++; } }
+      else if(f.phase==="fall"){ f.rot=Math.min(80,f.rot+dt*240); f.t2=(f.t2||0)+dt; if(f.t2>0.9){ f.gone=1; A.fell++; } }
+      else if(f.phase==="stuck"){ f.t2=(f.t2||0)+dt; if(f.t2>1.2){ f.gone=1; A.fell++; } }
+    }
+    A.fly=A.fly.filter(f=>!f.gone);
+    if(A.armDir===1){ A.arm+=dt*C.vf; if(A.arm>=C.sd){ A.arm=C.sd; A.armDir=-1; } }
+    else if(A.armDir===-1){ A.arm-=dt*C.vb; if(A.arm<=0){ A.arm=0; A.armDir=0; } }
+  }
+  drawD(); requestAnimationFrame(tick);
+}
+
+// ---------- controls ----------
+let holdT=null;
+function padBtn(b){ const die=b.closest("[data-die]").dataset.die, m=b.dataset.m, R=die+"R", L=die+"L", lim=v=>Math.max(-15,Math.min(15,Math.round(v*100)/100));
+  if(m==="fw"){K[R]=lim(K[R]+0.1);K[L]=lim(K[L]+0.1);} else if(m==="bw"){K[R]=lim(K[R]-0.1);K[L]=lim(K[L]-0.1);}
+  else if(m==="cw"){K[R]=lim(K[R]-0.1);K[L]=lim(K[L]+0.1);} else if(m==="ccw"){K[R]=lim(K[R]+0.1);K[L]=lim(K[L]-0.1);}
+  CUT=null; drawK(); }
+function stepBtn(b){ const k=b.closest("[data-k]").dataset.k, d=+b.dataset.d;
+  if(k==="tk"){ K.tk=clamp(K.tk+d,[60,200]); CUT=null; drawK(); } else { D[k]=clamp(D[k]+d,DR[k]); dPanel(); } }
+function stBtn(b){ K.pul=Math.max(-80,Math.min(80,K.pul+(+b.dataset.st))); CUT=null; drawK(); }
+document.addEventListener("pointerdown",e=>{ const b=e.target.closest(".step button, .arrows button, .pad button"); if(!b) return; e.preventDefault();
+  const fn=b.dataset.st?stBtn:b.dataset.m?padBtn:stepBtn; fn(b); let n=0; clearInterval(holdT); holdT=setInterval(()=>{ if(++n>4) fn(b); },110); });
+["pointerup","pointerleave","pointercancel"].forEach(ev=>document.addEventListener(ev,()=>clearInterval(holdT)));
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-tab]"); if(t){ document.querySelectorAll("[data-tab]").forEach(b=>b.classList.toggle("on",b===t)); $("#v-kesme").hidden=t.dataset.tab!=="kesme"; $("#v-dizme").hidden=t.dataset.tab!=="dizme"; return; }
+  const h=e.target.closest("[data-hit]"); if(h){ const k=h.dataset.hit; PAPER[k]=(PAPER[k]||0)+1; CUT=null; drawK(); }
+});
+const rnd=(a)=>Math.round((Math.random()*2*a-a)*10)/10;
+$("#scen").onclick=()=>{ const base=rnd(3); E={sx:rnd(1.8),LR:base+rnd(1.2),LL:base+rnd(1.2),UR:base+rnd(3),UL:base+rnd(3)}; Object.assign(K,{pul:0,UR:0,UL:0,LR:0,LL:0}); LOCAL=null; PAPER={}; CUT=null; drawK(); };
+$("#local").onclick=()=>{ LOCAL={c:Math.floor(Math.random()*8), s:SIDES[Math.floor(Math.random()*4)]}; PAPER={}; CUT=null; drawK(); };
+$("#paperx").onclick=()=>{ PAPER={}; CUT=null; drawK(); };
+$("#cut").onclick=()=>{ CUT=doCut(); drawK(); };
+$("#pist").onclick=()=>{ PIST=!PIST; dPanel(); };
+$("#run").onclick=()=>{ A.run=!A.run; $("#run").textContent=A.run?"DURDUR":"BAŞLAT"; if(A.run&&!A.pos){ A.pos=D.p0; A.phase="up1"; A.t=0; } };
+$("#slow").onclick=()=>{ A.speed=A.speed===1?0.25:A.speed===0.25?0.1:1; $("#slow").textContent=A.speed===1?"1x":A.speed===0.25?"¼ yavaş":"1/10 yavaş"; };
+$("#dreset").onclick=()=>{ Object.assign(D,D0); PIST=false; dPanel(); };
+
+// arrow buttons: a small die plate with arrows on it, in our colours
+const ICON={
+ fw:`<svg viewBox="0 0 48 48"><path d="M14 40V10M7 17l7-7 7 7M34 40V10M27 17l7-7 7 7" stroke="#5fcf8f" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+ bw:`<svg viewBox="0 0 48 48"><path d="M14 8v30M7 31l7 7 7-7M34 8v30M27 31l7 7 7-7" stroke="#f2a531" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+ cw:`<svg viewBox="0 0 48 48"><path d="M8 22a16 16 0 0 1 29-9M38 5v9h-9M40 26a16 16 0 0 1-29 9M10 43v-9h9" stroke="#8fd8e6" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+ ccw:`<svg viewBox="0 0 48 48"><path d="M40 22a16 16 0 0 0-29-9M10 5v9h9M8 26a16 16 0 0 0 29 9M38 43v-9h-9" stroke="#f2c94c" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+};
+document.querySelectorAll(".pad button[data-m]").forEach(b=>b.innerHTML=ICON[b.dataset.m]);
+const ARW=d=>`<svg viewBox="0 0 48 48"><path d="${d>0?"M6 18h22V8l16 16-16 16V30H6z":"M42 18H20V8L4 24l16 16V30h22z"}" fill="#8fd8e6" stroke="#0f1519" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
+document.querySelectorAll(".arrows button[data-st]").forEach(b=>b.innerHTML=ARW(+b.dataset.st));
+A.pos=D.p0;
+drawK(); dPanel(); requestAnimationFrame(tick);
+if("serviceWorker" in navigator && location.protocol==="https:") navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>

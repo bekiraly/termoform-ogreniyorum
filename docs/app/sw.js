@@ -1,7 +1,7 @@
 // Offline support: the page is fetched from the network first so updates arrive at once;
 // the last copy (and the fonts) are kept in a cache for use without internet.
 const C = "tfo-v2";
-self.addEventListener("install", e => { e.waitUntil(caches.open(C).then(c => c.addAll(["./", "./bakim.html", "./manifest.webmanifest", "../icon-192.png"])).then(() => self.skipWaiting())); });
+self.addEventListener("install", e => { e.waitUntil(caches.open(C).then(c => c.addAll(["./", "./bakim.html", "./kesme.html", "./manifest.webmanifest", "../icon-192.png"])).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== C).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener("fetch", e => {
   const r = e.request; if (r.method !== "GET") return;
