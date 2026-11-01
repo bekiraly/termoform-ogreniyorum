@@ -27,6 +27,7 @@ jobs:
         run: |
           mkdir -p android/app/src/main/assets
           cp docs/app/index.html android/app/src/main/assets/index.html
+          cp docs/app/bakim.html android/app/src/main/assets/bakim.html
 
       - name: Signing key
         env:
