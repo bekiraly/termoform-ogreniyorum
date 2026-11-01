@@ -432,7 +432,7 @@ function dFaults(){
   return {out,C};
 }
 // ---------- stacker animation: real-time motion profile ----------
-let A={run:false,speed:1,t:0,count:0,phase:"up1",pos:0,fly:[],done:0,fell:0,last:0,arm:0,armDir:0,swPending:null};
+let A={drops:[],crashT:0,run:false,speed:1,t:0,count:0,phase:"up1",pos:0,fly:[],done:0,fell:0,last:0,arm:0,armDir:0,swPending:null};
 function prof(t,d,pct){ // position along a move of length d after t seconds (trapezoid)
   const v=VMAX*pct/100, ta=D.ra*pct/100, T=mv(d,pct); if(t>=T) return d; if(t<=0) return 0;
   if(d/v>ta){ const a=v/ta; if(t<ta) return 0.5*a*t*t; if(t<T-ta) return 0.5*a*ta*ta+v*(t-ta); const r=T-t; return d-0.5*a*r*r; }
@@ -478,7 +478,8 @@ function drawD(){
     g+=`<circle cx="${cx0+bh/2}" cy="${cy+bh/2}" r="${bh/2-2}" fill="#c9d3d8" stroke="#8a979e"/><circle cx="${cx1-bh/2}" cy="${cy+bh/2}" r="${bh/2-2}" fill="#c9d3d8" stroke="#8a979e"/>`;
     g+=`<text x="${(cx0+cx1)/2}" y="${cy+32}" fill="#eef2f4" font-size="11" text-anchor="middle" font-family="Chakra Petch" letter-spacing="2">${L("KONVEYÖR","CONVEYOR","الناقل")} ➜</text>`; }
   for(const f of A.fly){ for(let i=0;i<8;i++){ const yt=cy-ch-i*NEST*sc*0.55; g+=`<g transform="translate(${f.x-X} 0) rotate(${f.rot} ${X} ${cy})"><path d="M${X-40},${yt} L${X+40},${yt} L${X+28},${yt+ch} L${X-28},${yt+ch} Z" fill="${f.fall?"#ef5d4d":(i%2?"#e2453a":"#d23c32")}" stroke="#7a1f19" stroke-width=".8"/></g>`; } }
-  for(const d of (A.drops||[])) g+=`<g transform="rotate(${d.t*120} ${X} ${yOf(d.y)})">${cup(yOf(d.y)-ch-2,"#ef5d4d")}</g>`;
+  for(const d of A.drops){ let h=""; for(let i=0;i<d.n;i++) h+=cup(yOf(d.y)-ch-2-i*NEST*sc*0.55,i%2?"#ef5d4d":"#d8473b"); g+=`<g transform="translate(${d.dir*d.t*60} 0) rotate(${d.dir*d.t*110} ${X} ${yOf(d.y)})">${h}</g>`; }
+  if(A.crashT>0) g+=`<text x="${X}" y="${(yOf(L1F)+yOf(L2F))/2}" text-anchor="middle" fill="#ef5d4d" font-size="20" font-weight="700" font-family="Chakra Petch" letter-spacing="2" opacity="${Math.min(1,A.crashT)}">💥 ${L("ÇARPIŞMA","COLLISION","اصطدام")}</text>`;
   // sweep arm: dark yellow, moves toward the conveyor; dashed ghosts at the back and forward positions
   const SY="#d99a1e", ax0=X-TW/2-14, ax1=ax0+C.sd*0.6, ax=ax0+A.arm*0.6, ah=70, at=cy-ah-2;
   const ghost=x=>`<rect x="${x}" y="${at}" width="10" height="${ah}" rx="2" fill="none" stroke="${SY}" stroke-dasharray="4 4" opacity=".7"/>`;
@@ -513,9 +514,15 @@ function tick(now){
   if(A.run){
     dt*=A.speed; const {out,C}=dFaults(); A.t+=dt;
     const last=A.count===D.n-1;
-    if(A.phase==="up1"){ A.pos=D.p0+prof(A.t,C.d1,D.v1); if(A.t>=mv(C.d1,D.v1)){ A.t=0; if(out.some(o=>o.id==="nolift")){ (A.drops=A.drops||[]).push({y:A.pos,t:0}); A.phase="down"; } else if(last){A.phase="up2";} else {A.count++; A.phase="down";} } }
-    else if(A.phase==="up2"){ A.pos=D.p1+prof(A.t,C.d2,D.v2); if(A.t>=mv(C.d2,D.v2)){ A.t=0; A.phase="wait"; } }
-    else if(A.phase==="wait"){ if(A.t>=D.wt){ A.t=0; A.phase="down"; const fail=out.find(o=>o.bad&&/^(tip|tall|short|nosweep)$/.test(o.id||""));
+    if(A.phase==="up1"){ A.pos=D.p0+prof(A.t,C.d1,D.v1); if(A.t>=mv(C.d1,D.v1)){ A.t=0; if(out.some(o=>o.id==="nolift")){ A.drops.push({y:A.pos,t:0,n:1,dir:1}); A.phase="down"; } else if(last){A.phase="up2";} else {A.count++; A.phase="down";} } }
+    else if(A.phase==="up2"){ A.pos=D.p1+prof(A.t,C.d2,D.v2);
+      const stuck=A.fly.find(f=>f.phase==="stuck");
+      if(stuck&&A.pos>L1F+(L2F-L1F)*0.55){   // rising stack hits the one the sweep left in the middle
+        stuck.phase="fall"; stuck.crash=1; A.drops.push({y:A.pos,t:0,n:Math.min(A.count+1,8),dir:-1}); A.count=0; A.crashT=1.4; A.downFrom=A.pos; A.t=0; A.phase="down"; }
+      else if(A.t>=mv(C.d2,D.v2)){ A.t=0;
+        if(out.some(o=>o.id==="nosweep")){ A.drops.push({y:A.pos,t:0,n:Math.min(A.count+1,8),dir:-1}); A.count=0; A.downFrom=A.pos; A.phase="down"; }
+        else A.phase="wait"; } }
+    else if(A.phase==="wait"){ if(A.t>=D.wt){ A.t=0; A.phase="down"; const fail=out.find(o=>o.bad&&/^(tip|tall|short)$/.test(o.id||""));
         for(const f of A.fly) if(f.phase==="stuck"){ f.phase="fall"; f.crash=1; }
         A.fly.push({x:400,rot:0,phase:"wait",fall:fail?fail.t:null,short:fail&&fail.id==="short",crash:A.fly.some(f=>f.crash&&!f.gone)}); A.count=0; A.swPending=D.sk; } }
     else if(A.phase==="down"){ const from=A.prevTop||D.p1; A.pos=Math.max(D.p0,(A.downFrom??D.p1)-prof(A.t,(A.downFrom??D.p1)-D.p0,D.vb));
@@ -530,8 +537,9 @@ function tick(now){
       else if(f.phase==="fall"){ f.rot=Math.min(80,f.rot+dt*240); f.t2=(f.t2||0)+dt; if(f.t2>0.9){ f.gone=1; A.fell++; } }
       else if(f.phase==="stuck"){ }
     }
-    for(const d of (A.drops||[])){ d.t+=dt; d.y-=dt*dt*0+dt*(200+d.t*900); if(d.t>0.7){ d.gone=1; A.fell++; } }
-    A.drops=(A.drops||[]).filter(d=>!d.gone);
+    for(const d of A.drops){ d.t+=dt; d.y-=dt*(200+d.t*900); if(d.t>0.8){ d.gone=1; A.fell+=d.n>1?1:1; } }
+    if(A.crashT>0) A.crashT-=dt;
+    A.drops=A.drops.filter(d=>!d.gone);
     A.fly=A.fly.filter(f=>!f.gone);
     if(A.armDir===1){ A.arm+=dt*C.vf; if(A.arm>=C.sd){ A.arm=C.sd; A.armDir=-1; } }
     else if(A.armDir===-1){ A.arm-=dt*C.vb; if(A.arm<=0){ A.arm=0; A.armDir=0; } }
