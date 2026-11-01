@@ -50,6 +50,11 @@ h1 em{font-style:normal;color:var(--accent)}
 .btn{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;border-radius:8px;font:700 15px var(--f-disp);letter-spacing:.05em;text-decoration:none;border:1px solid var(--line);background:var(--panel2);cursor:pointer}
 .btn.primary{background:var(--accent);color:var(--accentInk);border-color:var(--accent)}
 .btn svg{width:20px;height:20px;flex:none}
+button.btn{color:inherit}
+[hidden]{display:none!important}
+#iosbtn.primary{order:-1}
+.btn .chev{width:16px;height:16px;transition:transform .15s}
+.btn[aria-expanded=true] .chev{transform:rotate(180deg)}
 .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
 .tag{font-size:13px;color:var(--muted);border:1px solid var(--line);border-radius:20px;padding:3px 12px}
 .tag.red{border-color:var(--red);color:#ff9a9a}
@@ -74,7 +79,7 @@ h2{font-family:var(--f-disp);font-size:clamp(24px,3vw,32px);margin:0 0 8px}
 .step::before{counter-increment:s;content:counter(s);display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--accent);color:var(--accentInk);font:700 16px var(--f-disp);margin-bottom:10px}
 .step h3{margin:0 0 4px;font-size:17px}
 .step p{margin:0;color:var(--muted);font-size:15px}
-.ios{margin-top:16px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px}
+.ios{margin-top:14px;max-width:620px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px}
 .ios h3{display:flex;align-items:center;gap:8px;margin:0 0 4px;font-size:17px}
 .ios h3 svg{width:20px;height:20px}
 .ios p{margin:0 0 8px;color:var(--muted);font-size:15px}
@@ -114,7 +119,13 @@ footer a{color:var(--fg)}
         <a class="btn primary" id="apk" href="https://github.com/bekiraly/termoform-ogreniyorum/releases/latest/download/termoform-ogreniyorum.apk">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 19h16"/></svg><span data-t="dl"></span></a>
         <a class="btn" href="#dene"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M7 4l13 8-13 8z"/></svg><span data-t="try"></span></a>
+        <button class="btn" id="iosbtn" type="button" aria-expanded="false" aria-controls="iphone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg><span data-t="iosBtn"></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></button>
       </div>
+      <div class="ios" id="iphone" hidden>
+      <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg><span data-t="iosH"></span></h3>
+      <p data-t="iosP"></p>
+      <ol><li data-html="ios1"></li><li data-html="ios2"></li><li data-html="ios3"></li></ol>
+    </div>
       <div class="tags"><span class="tag red" data-t="tag1"></span><span class="tag" data-t="tag2"></span><span class="tag">Türkçe · English · العربية</span></div>
     </div>
     <div class="hero-art"><img src="icon-512.png" alt="Termoform Öğreniyorum"></div>
@@ -148,11 +159,6 @@ footer a{color:var(--fg)}
       <div class="step"><h3 data-t="s2h"></h3><p data-t="s2p"></p></div>
       <div class="step"><h3 data-t="s3h"></h3><p data-t="s3p"></p></div>
     </div>
-    <div class="ios" id="iphone">
-      <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg><span data-t="iosH"></span></h3>
-      <p data-t="iosP"></p>
-      <ol><li data-html="ios1"></li><li data-html="ios2"></li><li data-html="ios3"></li></ol>
-    </div>
     <p class="note" data-t="upd"></p>
   </div></section>
 </main>
@@ -175,7 +181,7 @@ tr:{dir:"ltr", title:"Termoform Öğreniyorum · Ücretsiz termoform eğitim uyg
   f4h:"Üç dil", f4p:"Türkçe, English ve العربية. Dili sağ üstten değiştir.",
   instH:"Android telefona kurulum", instP:"Uygulama şimdilik Play Store'da değil. APK dosyasını doğrudan indirip kurabilirsin.",
  iosH:"iPhone ve iPad", iosP:"App Store'a gerek yok. Uygulama ana ekrana eklenir, kendi ikonuyla tam ekran açılır ve internetsiz de çalışır.",
-  ios1:"iPhone'da <b>Safari</b> ile <a href=\"app/\">uygulama sayfasını</a> aç.", ios2:"Alttaki <b>Paylaş</b> düğmesine (yukarı oklu kare) dokun.", ios3:"<b>Ana Ekrana Ekle</b>'yi seç ve <b>Ekle</b>'ye bas. Artık ana ekrandaki ikondan açabilirsin.", iosBtn:"iPHONE'A EKLE",
+  ios1:"iPhone'da <b>Safari</b> ile <a href=\"app/\">uygulama sayfasını</a> aç.", ios2:"Alttaki <b>Paylaş</b> düğmesine (yukarı oklu kare) dokun.", ios3:"<b>Ana Ekrana Ekle</b>'yi seç ve <b>Ekle</b>'ye bas. Artık ana ekrandaki ikondan açabilirsin.", iosBtn:"iPHONE / iPAD",
   s1h:"İndir", s1p:"Telefonda bu sayfayı aç ve ANDROID APK İNDİR düğmesine bas.",
   s2h:"İzin ver", s2p:"Telefon “bilinmeyen kaynak” uyarısı verirse bir kereliğine izin ver.",
   s3h:"Aç ve öğren", s3p:"İndirilen dosyaya dokun, kur ve Termoform Öğreniyorum'u aç.",
@@ -192,7 +198,7 @@ en:{dir:"ltr", title:"Thermoform Trainer · Free thermoforming training app", na
   f4h:"Three languages", f4p:"Türkçe, English and العربية. Change the language at the top.",
   instH:"Install on an Android phone", instP:"The app is not on the Play Store yet. Download the APK file and install it directly.",
  iosH:"iPhone and iPad", iosP:"No App Store needed. The app is added to the home screen, opens full screen with its own icon and works offline.",
-  ios1:"On the iPhone, open the <a href=\"app/\">app page</a> in <b>Safari</b>.", ios2:"Tap the <b>Share</b> button (the square with an arrow).", ios3:"Choose <b>Add to Home Screen</b> and tap <b>Add</b>. Open it from the icon on your home screen.", iosBtn:"ADD TO iPHONE",
+  ios1:"On the iPhone, open the <a href=\"app/\">app page</a> in <b>Safari</b>.", ios2:"Tap the <b>Share</b> button (the square with an arrow).", ios3:"Choose <b>Add to Home Screen</b> and tap <b>Add</b>. Open it from the icon on your home screen.", iosBtn:"iPHONE / iPAD",
   s1h:"Download", s1p:"Open this page on your phone and tap DOWNLOAD ANDROID APK.",
   s2h:"Allow", s2p:"If the phone warns about an “unknown source”, allow it once.",
   s3h:"Open and learn", s3p:"Tap the downloaded file, install it and open Termoform Öğreniyorum.",
@@ -209,7 +215,7 @@ ar:{dir:"rtl", title:"تعلّم التشكيل الحراري · تطبيق ت�
   f4h:"ثلاث لغات", f4p:"Türkçe و English و العربية. غيّر اللغة من الأعلى.",
   instH:"التثبيت على هاتف أندرويد", instP:"التطبيق غير موجود على متجر Play بعد. نزّل ملف APK وثبّته مباشرة.",
  iosH:"آيفون وآيباد", iosP:"لا حاجة إلى متجر App Store. يُضاف التطبيق إلى الشاشة الرئيسية ويفتح بملء الشاشة بأيقونته ويعمل دون إنترنت.",
-  ios1:"على الآيفون افتح <a href=\"app/\">صفحة التطبيق</a> في متصفح <b>Safari</b>.", ios2:"اضغط زر <b>المشاركة</b> (المربع مع السهم).", ios3:"اختر <b>إضافة إلى الشاشة الرئيسية</b> ثم <b>إضافة</b>. افتحه من الأيقونة على الشاشة الرئيسية.", iosBtn:"أضِف إلى الآيفون",
+  ios1:"على الآيفون افتح <a href=\"app/\">صفحة التطبيق</a> في متصفح <b>Safari</b>.", ios2:"اضغط زر <b>المشاركة</b> (المربع مع السهم).", ios3:"اختر <b>إضافة إلى الشاشة الرئيسية</b> ثم <b>إضافة</b>. افتحه من الأيقونة على الشاشة الرئيسية.", iosBtn:"آيفون / آيباد",
   s1h:"نزّل", s1p:"افتح هذه الصفحة على هاتفك واضغط تنزيل تطبيق أندرويد.",
   s2h:"اسمح", s2p:"إذا ظهر تحذير «مصدر غير معروف» فاسمح به مرة واحدة.",
   s3h:"افتح وتعلّم", s3p:"المس الملف الذي تم تنزيله، ثبّته وافتح التطبيق.",
@@ -236,8 +242,11 @@ function setLang(l){
 }
 document.addEventListener("click",e=>{ const b=e.target.closest("[data-lang]"); if(b) setLang(b.dataset.lang); });
 setLang(pick());
+const iosB=document.getElementById("iosbtn"), iosP=document.getElementById("iphone");
+function iosOpen(on){ iosP.hidden=!on; iosB.setAttribute("aria-expanded",on); }
+iosB.addEventListener("click",()=>iosOpen(iosP.hidden));
 if (/iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1)) {
-  const b=document.getElementById("apk"); b.href="#iphone"; b.querySelector("span").dataset.t="iosBtn"; setLang(lang);
+  document.getElementById("apk").hidden=true; iosB.classList.add("primary"); iosOpen(true);
 }
 </script>
 </body>
