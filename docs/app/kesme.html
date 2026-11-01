@@ -9,7 +9,7 @@
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="icon" href="../favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
 <style>
 /* Same dark panel look as the cycle page: settings on one side, live view and fault list on the other. */
 :root{
@@ -71,6 +71,7 @@ header .wrap{display:flex;align-items:center;gap:8px 16px;flex-wrap:wrap;padding
 .fault p{margin:4px 0 0;font-size:13px;color:var(--muted);line-height:1.45}
 .fault p.fix{color:var(--fg)}
 .fault p.fix::before{content:"Çözüm: ";color:var(--ok);font-weight:600}
+html[lang=en] .fault p.fix::before{content:"Fix: "}html[lang=ar] .fault p.fix::before{content:"الحل: "}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:8px}
 .legend i{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:6px}
 .counters{display:flex;gap:16px;font-family:var(--f-disp);font-size:13px;color:var(--muted);margin-top:8px;flex-wrap:wrap}
@@ -110,7 +111,7 @@ footer{color:var(--muted);font-size:12px;padding:10px 0 40px;text-align:center}
 .klay{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);grid-template-areas:"view ctl" "view info";gap:12px 14px;margin-bottom:24px;align-items:start}
 .kview{grid-area:view;position:sticky;top:8px;z-index:4;background:var(--bg)}
 .kctl{grid-area:ctl}.kinfo{grid-area:info}
-.pads{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pads{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}.pads .die{min-width:0}
 .pads .die{margin-top:0}
 @media (max-width:860px){
   .klay{grid-template-columns:minmax(0,1fr);grid-template-areas:"view" "ctl" "info";gap:8px}
@@ -119,7 +120,7 @@ footer{color:var(--muted);font-size:12px;padding:10px 0 40px;text-align:center}
   #kv{max-height:34vh}
   #dv{max-height:44vh}
 }
-@media (max-width:420px){.pads{grid-template-columns:1fr 1fr;gap:6px}}
+@media (max-width:420px){.pads{gap:6px}.die{padding:6px}.pad{grid-template-columns:40px minmax(0,1fr) 40px}.pad .rd div b{font-size:9px;letter-spacing:0}}
 /* stacker axis */
 .axis{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:12px}
 .ax-set .row{padding:6px 0}
@@ -131,6 +132,18 @@ footer{color:var(--muted);font-size:12px;padding:10px 0 40px;text-align:center}
 .grp{font-family:var(--f-disp);font-size:11px;letter-spacing:.1em;color:var(--value);margin:12px 0 2px}
 .grp:first-child{margin-top:0}
 @media (max-width:600px){.axis{grid-template-columns:1fr}}
+
+/* language switch + right-to-left (Arabic) */
+.lang{display:flex;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.lang button{background:none;border:0;padding:4px 9px;font-family:var(--f-disp);font-size:12px;color:var(--muted);cursor:pointer}
+.lang button.on{background:var(--accent);color:#14100a;font-weight:700}
+[dir=rtl] body{font-family:"IBM Plex Sans Arabic",var(--f-body)}
+[dir=rtl] .brand,[dir=rtl] .pagename,[dir=rtl] .back,[dir=rtl] .tabs button,[dir=rtl] h2,[dir=rtl] h3,[dir=rtl] h4,[dir=rtl] .btn,[dir=rtl] .tag,[dir=rtl] .chips button,[dir=rtl] .grp,[dir=rtl] .assume b,[dir=rtl] .die h3,[dir=rtl] .status,[dir=rtl] .tbl th,[dir=rtl] .cnt,[dir=rtl] .phbtn,[dir=rtl] .ty{font-family:"IBM Plex Sans Arabic",var(--f-disp);letter-spacing:0}
+[dir=rtl] .back{margin-left:0;margin-right:auto}
+[dir=rtl] .tbl th{text-align:right}
+[dir=rtl] .fault{border-left:0;border-right:3px solid var(--bad)}[dir=rtl] .fault.warn{border-right-color:var(--warn)}
+svg,.ph,.pad,.arrows,.step,.lang{direction:ltr}
+.bars .b span{direction:ltr;unicode-bidi:isolate}
 </style>
 </head>
 <body>
@@ -138,6 +151,7 @@ footer{color:var(--muted);font-size:12px;padding:10px 0 40px;text-align:center}
   <div><div class="brand">TERMOFORM <b>ÖĞRENİYORUM</b></div><div class="copy">© 2026 Bekir Yenigün · Tüm hakları saklıdır</div></div>
   <div class="pagename">KESME · DİZME AYARLARI</div>
   <a class="back" href="index.html">‹ ÇEVRİM AYARLARI</a>
+  <div class="lang" role="group" aria-label="Dil / Language / اللغة"><button data-lang="tr">TR</button><button data-lang="en">EN</button><button data-lang="ar">ع</button></div>
   <nav class="tabs"><button data-tab="kesme" class="on">KESME</button><button data-tab="dizme">DİZME</button></nav>
 </div></header>
 
@@ -147,15 +161,15 @@ footer{color:var(--muted);font-size:12px;padding:10px 0 40px;text-align:center}
   <div class="assume"><b>NASIL ÇALIŞIR</b>
     <ul><li>Üst kalıpta ısıtmalı çelik bıçaklar (100–150 °C), altta çelik kesme kalıbı var. Ürün alt kalıbın gözüne oturur, bıçak gözün etrafındaki çelik kenara vurur ve keser.</li>
     <li>Kesme istasyonu ok butonları (◀ ▶) istasyonu komple, yani üst bıçak ve alt kalıbı birlikte levha akış yönünde sağa sola taşır. Her pals 0.25 mm.</li>
-    <li>Üst ve alt kalıbın her birinde <b style="color:inherit;font-family:inherit;letter-spacing:0">sol</b> ve <b style="color:inherit;font-family:inherit;letter-spacing:0">sağ</b> ayar motoru var, kalıbı ekranda yukarı aşağı (akışa dik) hareket ettirir. Her pals 0.10 mm. İkisi aynı yöne giderse kalıp yukarı/aşağı kayar, ters yöne giderse kalıp döner. Üst ve alt ayrı ayrı ayarlanır.</li></ul></div>
+    <li>Üst ve alt kalıbın her birinde sol ve sağ ayar motoru var, kalıbı ekranda yukarı aşağı (akışa dik) hareket ettirir. Her pals 0.10 mm. İkisi aynı yöne giderse kalıp yukarı/aşağı kayar, ters yöne giderse kalıp döner. Üst ve alt ayrı ayrı ayarlanır.</li></ul></div>
   <div class="klay">
     <div class="kview">
-      <div class="view"><svg id="kv" viewBox="0 0 640 400"></svg></div>
+      <div class="view"><svg id="kv" data-noi18n viewBox="0 0 640 400"></svg></div>
       <div class="legend"><span><i style="background:var(--sheet)"></i>Ürün</span><span><i style="background:#9fb0ba"></i>Alt kalıp gözü</span><span><i style="background:var(--accent)"></i>Bıçak</span><span><i style="background:var(--ok)"></i>Kesti</span><span><i style="background:var(--bad)"></i>Kesmedi</span><span>Kaymalar 5 kat büyütülmüş</span></div>
     </div>
     <div class="card kctl">
       <div class="row"><div class="nm">Kesme istasyonu<small>Üst ve alt kalıbı birlikte akış yönünde sağa sola taşır. 1 pals = 0.25 mm.</small></div>
-        <div class="arrows"><button data-st="-1" aria-label="Geri">◀</button><div class="v" id="stv"></div><button data-st="1" aria-label="İleri">▶</button></div></div>
+        <div class="arrows"><button data-st="-1" aria-label="Geri">◀</button><div class="v" id="stv" data-noi18n></div><button data-st="1" aria-label="İleri">▶</button></div></div>
       <div class="pads">
       <div class="die"><h3>ÜST KALIP · BIÇAK <small>1 pals = 0.10 mm</small></h3>
         <div class="pad" data-die="U">
@@ -181,9 +195,9 @@ footer{color:var(--muted);font-size:12px;padding:10px 0 40px;text-align:center}
       <p class="mode">Görev: "Yeni senaryo" kalıpları rastgele kaydırır ve döndürür. Akış yönündeki kaymayı istasyonla, yukarı aşağı kaymayı kalıp motorlarıyla düzelt: önce alt kalıbı ürüne oturt, sonra bıçağı ortala. Sağ uç ile sol uç farklıysa kalıp dönmüştür, döndürme butonlarını kullan. "Lokal kesmeme"de kesmeyen kenara dokunup altına kağıt koy.</p>
     </div>
     <div class="kinfo">
-      <table class="tbl" id="ktbl"></table>
-      <div class="status" id="kst"></div>
-      <div class="faults" id="kf"></div>
+      <table class="tbl" id="ktbl" data-noi18n></table>
+      <div class="status" id="kst" data-noi18n></div>
+      <div class="faults" id="kf" data-noi18n></div>
     </div>
   </div>
 </section>
@@ -191,13 +205,13 @@ footer{color:var(--muted);font-size:12px;padding:10px 0 40px;text-align:center}
 <!-- ================= DİZME ================= -->
 <section id="v-dizme" hidden>
   <div class="assume"><b>NASIL ÇALIŞIR</b>
-    <ul><li>Dizme itici servo ile aşağı yukarı hareket eder. Her çevrimde ürünü <b style="color:inherit;font-family:inherit;letter-spacing:0">başlangıç</b> noktasından alıp <b style="color:inherit;font-family:inherit;letter-spacing:0">1. kademeye</b> iter ve geri döner. Ürünler 1. kademede üst üste dizilir.</li>
-    <li>İstenen adetin son ürününde itici <b style="color:inherit;font-family:inherit;letter-spacing:0">2. kademeye</b> kadar çıkar, yığın süpürme seviyesine gelir ve süpürme yığını konveyöre iter. 1. kademe durmadan yeniden dizmeye başlar.</li>
-    <li>İtici bir çevrimde gidip dönmeye yetişmelidir. <span style="color:var(--warn)">Hesapta:</span> %100 hız = 2500 mm/s, ürün 70 mm, her ürün yığını 8 mm yükseltir.</li></ul></div>
+    <ul><li>Dizme itici servo ile aşağı yukarı hareket eder. Her çevrimde ürünü başlangıç noktasından alıp 1. kademeye iter ve geri döner. Ürünler 1. kademede üst üste dizilir.</li>
+    <li>İstenen adetin son ürününde itici 2. kademeye kadar çıkar, yığın süpürme seviyesine gelir ve süpürme yığını konveyöre iter. 1. kademe durmadan yeniden dizmeye başlar.</li>
+    <li>İtici bir çevrimde gidip dönmeye yetişmelidir. Hesapta: %100 hız = 2500 mm/s, ürün 70 mm, her ürün yığını 8 mm yükseltir.</li></ul></div>
   <div class="klay">
     <div class="kview">
-      <div class="view"><svg id="dv" viewBox="0 0 640 530"></svg></div>
-      <div id="bars" class="bars"></div>
+      <div class="view"><svg id="dv" data-noi18n viewBox="0 0 640 530"></svg></div>
+      <div id="bars" data-noi18n class="bars"></div>
     </div>
     <div class="card ax-set kctl">
       <h2>DİZME AYARLARI</h2>
@@ -217,13 +231,13 @@ footer{color:var(--muted);font-size:12px;padding:10px 0 40px;text-align:center}
       <div class="row sw"><div class="nm">Geri hız</div><div class="step" data-k="sb"><button data-d="-1">−</button><div class="v"></div><button data-d="1">+</button></div></div>
       <div class="grp">MAKİNE</div>
       <div class="row"><div class="nm">Çevrim / dk</div><div class="step" data-k="cpm"><button data-d="-1">−</button><div class="v"></div><button data-d="1">+</button></div></div>
-      <div class="btns"><button class="btn pri" id="run">BAŞLAT</button><button class="btn" id="slow">1x</button><button class="btn" id="dreset">FABRİKA AYARI</button></div>
+      <div class="btns"><button class="btn pri" id="run" data-noi18n>BAŞLAT</button><button class="btn" id="slow" data-noi18n>1x</button><button class="btn" id="dreset">FABRİKA AYARI</button></div>
     </div>
     <div class="kinfo">
       <div class="counters"><span>Gerçek adet <b id="cnt">0</b></span><span>İtici <b id="pos">0</b> mm</span><span>Yığın <b id="hgt">0</b> mm</span><span>Konveyöre giden <b id="stk">0</b></span><span>Devrilen <b id="dev" style="color:var(--bad)">0</b></span></div>
-      <table class="tbl" id="dtbl"></table>
-      <div class="status" id="dst"></div>
-      <div class="faults" id="df"></div>
+      <table class="tbl" id="dtbl" data-noi18n></table>
+      <div class="status" id="dst" data-noi18n></div>
+      <div class="faults" id="df" data-noi18n></div>
     </div>
   </div>
 </section>
@@ -231,6 +245,25 @@ footer{color:var(--muted);font-size:12px;padding:10px 0 40px;text-align:center}
 <footer>© 2026 Bekir Yenigün · Tüm hakları saklıdır<br>İletişim ve destek: bekir.yenigun@gmail.com</footer>
 
 <script>
+const TX={"TERMOFORM": ["THERMOFORM", "تعلّم"], "ÖĞRENİYORUM": ["TRAINER", "التشكيل الحراري"], "© 2026 Bekir Yenigün · Tüm hakları saklıdır": ["© 2026 Bekir Yenigün · All rights reserved", "© 2026 Bekir Yenigün · جميع الحقوق محفوظة"], "KESME · DİZME AYARLARI": ["CUTTING · STACKING SETTINGS", "إعدادات القص · الرصّ"], "‹ ÇEVRİM AYARLARI": ["‹ CYCLE SETTINGS", "‹ إعدادات الدورة"], "KESME": ["CUTTING", "القص"], "DİZME": ["STACKING", "الرصّ"], "NASIL ÇALIŞIR": ["HOW IT WORKS", "كيف يعمل"], "Üst kalıpta ısıtmalı çelik bıçaklar (100–150 °C), altta çelik kesme kalıbı var. Ürün alt kalıbın gözüne oturur, bıçak gözün etrafındaki çelik kenara vurur ve keser.": ["The upper die carries heated steel knives (100–150 °C); below is the steel cutting die. The part sits in the lower die cavity, and the knife strikes the steel edge around the cavity and cuts.", "يحمل القالب العلوي سكاكين فولاذية مسخّنة (100–150 °م)، وفي الأسفل قالب قص فولاذي. يجلس المنتج في تجويف القالب السفلي، وتضرب السكين الحافة الفولاذية حول التجويف فتقص."], "Kesme istasyonu ok butonları (◀ ▶) istasyonu komple, yani üst bıçak ve alt kalıbı birlikte levha akış yönünde sağa sola taşır. Her pals 0.25 mm.": ["The cutting station arrow buttons (◀ ▶) move the whole station, upper knife and lower die together, left and right along the sheet flow. Each pulse is 0.25 mm.", "أزرار الأسهم لمحطة القص (◀ ▶) تحرّك المحطة كاملة، أي السكين العلوية والقالب السفلي معًا، يمينًا ويسارًا باتجاه سحب اللوح. كل نبضة 0.25 مم."], "Üst ve alt kalıbın her birinde sol ve sağ ayar motoru var, kalıbı ekranda yukarı aşağı (akışa dik) hareket ettirir. Her pals 0.10 mm. İkisi aynı yöne giderse kalıp yukarı/aşağı kayar, ters yöne giderse kalıp döner. Üst ve alt ayrı ayrı ayarlanır.": ["The upper and lower dies each have a left and a right adjustment motor that move the die up and down on the screen (across the flow). Each pulse is 0.10 mm. If both go the same way the die shifts up/down; if they go opposite ways the die rotates. Upper and lower are set separately.", "لكل من القالب العلوي والسفلي محرك ضبط أيسر وأيمن يحرّكان القالب إلى الأعلى والأسفل على الشاشة (عموديًا على السحب). كل نبضة 0.10 مم. إذا تحركا في الاتجاه نفسه ينزاح القالب أعلى/أسفل، وإذا تحركا في اتجاهين متعاكسين يدور القالب. يُضبط العلوي والسفلي كلٌّ على حدة."], "Ürün": ["Part", "المنتج"], "Alt kalıp gözü": ["Lower die cavity", "تجويف القالب السفلي"], "Bıçak": ["Knife", "السكين"], "Kesti": ["Cut", "قُصّ"], "Kesmedi": ["Not cut", "لم يُقص"], "Kaymalar 5 kat büyütülmüş": ["Shifts shown 5× larger", "الانزياحات مكبّرة 5 مرات"], "Kesme istasyonu": ["Cutting station", "محطة القص"], "Üst ve alt kalıbı birlikte akış yönünde sağa sola taşır. 1 pals = 0.25 mm.": ["Moves the upper and lower dies together left and right along the flow. 1 pulse = 0.25 mm.", "تحرّك القالبين العلوي والسفلي معًا يمينًا ويسارًا باتجاه السحب. نبضة واحدة = 0.25 مم."], "ÜST KALIP · BIÇAK": ["UPPER DIE · KNIFE", "القالب العلوي · السكين"], "1 pals = 0.10 mm": ["1 pulse = 0.10 mm", "نبضة واحدة = 0.10 مم"], "SOL": ["LEFT", "يسار"], "SAĞ": ["RIGHT", "يمين"], "ALT KALIP · ÇELİK": ["LOWER DIE · STEEL", "القالب السفلي · الفولاذ"], "Bıçak sıcaklığı": ["Knife temperature", "حرارة السكين"], "Çalışma bandı 100–150 °C.": ["Working band 100–150 °C.", "نطاق العمل 100–150 °م."], "TEST KESİMİ": ["TEST CUT", "قص تجريبي"], "YENİ SENARYO": ["NEW SCENARIO", "سيناريو جديد"], "LOKAL KESMEME": ["LOCAL NON-CUT", "عدم قص موضعي"], "KAĞITLARI KALDIR": ["REMOVE PAPERS", "إزالة الأوراق"], "Görev: \"Yeni senaryo\" kalıpları rastgele kaydırır ve döndürür. Akış yönündeki kaymayı istasyonla, yukarı aşağı kaymayı kalıp motorlarıyla düzelt: önce alt kalıbı ürüne oturt, sonra bıçağı ortala. Sağ uç ile sol uç farklıysa kalıp dönmüştür, döndürme butonlarını kullan. \"Lokal kesmeme\"de kesmeyen kenara dokunup altına kağıt koy.": ["Task: \"New scenario\" shifts and rotates the dies at random. Fix the shift along the flow with the station and the up/down shift with the die motors: first seat the lower die to the part, then centre the knife. If the right and left ends differ, the die is rotated; use the rotate buttons. In \"Local non-cut\", tap the edge that does not cut and put paper under it.", "المهمة: \"سيناريو جديد\" يزيح القوالب ويديرها عشوائيًا. صحّح الانزياح باتجاه السحب بالمحطة، والانزياح أعلى/أسفل بمحركات القالب: أجلِس القالب السفلي على المنتج أولًا ثم ضع السكين في المنتصف. إذا اختلف الطرف الأيمن عن الأيسر فالقالب مُدار، استخدم أزرار التدوير. في \"عدم قص موضعي\" اضغط على الحافة التي لا تُقص وضع تحتها ورقة."], "Dizme itici servo ile aşağı yukarı hareket eder. Her çevrimde ürünü başlangıç noktasından alıp 1. kademeye iter ve geri döner. Ürünler 1. kademede üst üste dizilir.": ["The stacker pusher moves up and down with a servo. Every cycle it takes the part from the start point, pushes it up to level 1 and comes back. The parts stack on top of each other at level 1.", "يتحرك دافع الرصّ إلى الأعلى والأسفل بمحرك سيرفو. في كل دورة يأخذ المنتج من نقطة البداية ويدفعه إلى المستوى 1 ثم يعود. تُرَصّ المنتجات فوق بعضها في المستوى 1."], "İstenen adetin son ürününde itici 2. kademeye kadar çıkar, yığın süpürme seviyesine gelir ve süpürme yığını konveyöre iter. 1. kademe durmadan yeniden dizmeye başlar.": ["On the last part of the target count the pusher rises to level 2, the stack reaches the sweep level and the sweep pushes it onto the conveyor. Level 1 starts stacking again without stopping.", "مع المنتج الأخير من العدد المطلوب يصعد الدافع إلى المستوى 2، فتصل الرصّة إلى مستوى الكاسح ويدفعها الكاسح إلى الناقل. يبدأ المستوى 1 الرصّ من جديد دون توقف."], "İtici bir çevrimde gidip dönmeye yetişmelidir. Hesapta: %100 hız = 2500 mm/s, ürün 70 mm, her ürün yığını 8 mm yükseltir.": ["The pusher must go and come back within one cycle. The calculation uses: 100% speed = 2500 mm/s, part 70 mm, each part raises the stack by 8 mm.", "يجب أن يذهب الدافع ويعود خلال دورة واحدة. في الحساب: سرعة 100% = 2500 مم/ث، المنتج 70 مم، وكل منتج يرفع الرصّة 8 مم."], "DİZME AYARLARI": ["STACKING SETTINGS", "إعدادات الرصّ"], "ADET": ["COUNT", "العدد"], "İstenen adet": ["Target count", "العدد المطلوب"], "DİZME İTİCİ POZİSYONLARI": ["PUSHER POSITIONS", "مواضع الدافع"], "Başlangıç": ["Start", "البداية"], "1. kademe": ["Level 1", "المستوى 1"], "1. kademe hızı": ["Level 1 speed", "سرعة المستوى 1"], "2. kademe": ["Level 2", "المستوى 2"], "2. kademe hızı": ["Level 2 speed", "سرعة المستوى 2"], "Geri hız": ["Return speed", "سرعة الرجوع"], "SÜPÜRME": ["SWEEP", "الكاسح"], "Pistonlu süpürme": ["Pneumatic sweep", "كاسح هوائي"], "Pnömatik: ayar yok.": ["Pneumatic: no settings.", "هوائي: بلا ضبط."], "İleri mesafe": ["Forward distance", "مسافة التقدم"], "İleri hız": ["Forward speed", "سرعة التقدم"], "MAKİNE": ["MACHINE", "الماكينة"], "Çevrim / dk": ["Cycles / min", "دورة / دقيقة"], "FABRİKA AYARI": ["FACTORY SETTINGS", "إعدادات المصنع"], "Gerçek adet": ["Actual count", "العدد الفعلي"], "İtici": ["Pusher", "الدافع"], "Yığın": ["Stack", "الرصّة"], "Konveyöre giden": ["To conveyor", "إلى الناقل"], "Devrilen": ["Tipped over", "المنقلبة"], "İletişim ve destek: bekir.yenigun@gmail.com": ["Contact and support: bekir.yenigun@gmail.com", "التواصل والدعم: bekir.yenigun@gmail.com"], "Geri": ["Back", "خلف"], "İleri": ["Forward", "أمام"], "İkisi yukarı": ["Both up", "الاثنان للأعلى"], "Sola döndür": ["Rotate left", "تدوير لليسار"], "Sağa döndür": ["Rotate right", "تدوير لليمين"], "İkisi aşağı": ["Both down", "الاثنان للأسفل"], "Kesme · Dizme · Termoform Öğreniyorum": ["Cutting · Stacking · Thermoform Trainer", "القص · الرصّ · تعلّم التشكيل الحراري"]};
+// ---------- language (shared with the cycle page through localStorage "tfo-lang") ----------
+const LANGS=["tr","en","ar"];
+let LANG=(()=>{ try{ const s=localStorage.getItem("tfo-lang"); if(LANGS.includes(s)) return s; }catch(_){} return "tr"; })();
+const T=s=>{ if(s==null||LANG==="tr") return s; const k=String(s).trim(), v=TX[k]; return v? String(s).replace(k,v[LANG==="en"?0:1]) : s; };
+const L=(tr,en,ar)=>LANG==="en"?en:LANG==="ar"?ar:tr;
+const ORIG=new WeakMap(), ORIGA=new WeakMap(), TITLE0=document.title;
+function i18nStatic(){
+  const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT), nodes=[]; let n;
+  while(n=w.nextNode()){ if(n.parentElement.closest("script,style,svg,[data-noi18n]")) continue; nodes.push(n); }
+  for(const n of nodes){ if(!ORIG.has(n)) ORIG.set(n,n.nodeValue); n.nodeValue=T(ORIG.get(n)); }
+  document.querySelectorAll("[placeholder],[alt],[aria-label]").forEach(e=>{ if(e.closest("[data-noi18n]")) return; let o=ORIGA.get(e);
+    if(!o){ o={}; for(const a of ["placeholder","alt","aria-label"]) if(e.hasAttribute(a)) o[a]=e.getAttribute(a); ORIGA.set(e,o); }
+    for(const a in o) e.setAttribute(a,T(o[a])); });
+  document.title=T(TITLE0); document.documentElement.lang=LANG; document.documentElement.dir=LANG==="ar"?"rtl":"ltr";
+  document.querySelectorAll("[data-lang]").forEach(b=>b.classList.toggle("on",b.dataset.lang===LANG));
+}
+document.addEventListener("click",e=>{ const b=e.target.closest("[data-lang]"); if(!b) return; LANG=LANGS.includes(b.dataset.lang)?b.dataset.lang:"tr"; try{ localStorage.setItem("tfo-lang",LANG); }catch(_){} onLang(); });
+
 const $=s=>document.querySelector(s);
 const f1=v=>(Math.round(v*10)/10).toFixed(1), f2=v=>(Math.round(v*100)/100).toFixed(2);
 const clamp=(v,r)=>Math.min(r[1],Math.max(r[0],Math.round(v*100)/100));
@@ -259,42 +292,49 @@ function sideCuts(st,side){
   return true;                                  // left/right edges: both dies ride on the station together
 }
 const SIDES=["sol","sag","ust","alt"], SN={sol:"sol",sag:"sağ",ust:"üst",alt:"alt"};
-const ENDS=[["Sol uç (1 · 5. gözler)",0,"SOL"],["Sağ uç (4 · 8. gözler)",1,"SAĞ"]];
+const SNx=k=>L(SN[k],{sol:"left",sag:"right",ust:"top",alt:"bottom"}[k],{sol:"اليسرى",sag:"اليمنى",ust:"العلوية",alt:"السفلية"}[k]);
+const ENDS0=[[["Sol uç (1 · 5. gözler)","Left end (cavities 1 · 5)","الطرف الأيسر (التجويفان 1 · 5)"],0,"SOL"],[["Sağ uç (4 · 8. gözler)","Right end (cavities 4 · 8)","الطرف الأيمن (التجويفان 4 · 8)"],1,"SAĞ"]];
+let ENDS=[];
+const mkEnds=()=>{ ENDS=ENDS0.map(([n,t,m])=>[L(...n),t,m]); }; mkEnds();
 function doCut(){ const res={}; CAV.forEach((c,i)=>{ const st=cavState(c.t); for(const s of SIDES){ let ok=sideCuts(st,s); if(LOCAL&&LOCAL.c===i&&LOCAL.s===s&&!(PAPER[i+":"+s]>=1)) ok=false; res[i+":"+s]=ok; } }); return res; }
 function kFaults(){
   const out=[], dx=dxNow(), pals=v=>Math.max(1,Math.round(Math.abs(v)/0.25));
+  const stF=()=>L(`Kesme istasyonunu ${dx>0?"geri (◀)":"ileri (▶)"} al: yaklaşık ${pals(dx)} pals.`,`Move the cutting station ${dx>0?"back (◀)":"forward (▶)"}: about ${pals(dx)} pulses.`,`حرّك محطة القص ${dx>0?"إلى الخلف (◀)":"إلى الأمام (▶)"}: حوالي ${pals(dx)} نبضة.`);
   // along the flow: only the station fixes it
-  if(Math.abs(dx)>1.5) out.push({bad:1,t:"Akış yönünde ürün alt kalıba oturmuyor",w:`Kalıplar ürüne göre ${f2(Math.abs(dx))} mm ${dx>0?"ileride (akış yönünde)":"geride"}. Ürün gözün içine girmiyor, çelik kenarın üstüne biniyor; bıçak inince ağız ezilir veya kırılır.`,x:`Kesme istasyonunu ${dx>0?"geri (◀)":"ileri (▶)"} al: yaklaşık ${pals(dx)} pals.`});
-  else if(Math.abs(dx)>0.8) out.push({bad:0,t:"Akış yönünde ürün zor oturuyor",w:`Kalıplar ${f2(Math.abs(dx))} mm kaymış. Ürün göze sürterek giriyor, ağız kenarında iz kalır.`,x:`Kesme istasyonunu ${dx>0?"geri (◀)":"ileri (▶)"} al: yaklaşık ${pals(dx)} pals.`});
-  else if(Math.abs(dx)>0.5) out.push({bad:0,t:"Flanş solda ve sağda eşit değil",w:`Sol ${f1(F+dx)} mm, sağ ${f1(F-dx)} mm.`,x:`Kesme istasyonunu ${dx>0?"geri (◀)":"ileri (▶)"} al: yaklaşık ${pals(dx)} pals.`});
+  if(Math.abs(dx)>1.5) out.push({bad:1,t:L("Akış yönünde ürün alt kalıba oturmuyor","Along the flow the part does not seat in the lower die","المنتج لا يجلس في القالب السفلي باتجاه السحب"),w:L(`Kalıplar ürüne göre ${f2(Math.abs(dx))} mm ${dx>0?"ileride (akış yönünde)":"geride"}. Ürün gözün içine girmiyor, çelik kenarın üstüne biniyor; bıçak inince ağız ezilir veya kırılır.`,`The dies are ${f2(Math.abs(dx))} mm ${dx>0?"ahead of the part (with the flow)":"behind the part"}. The part does not drop into the cavity and rides on the steel edge; when the knife comes down the rim gets crushed or cracked.`,`القوالب ${dx>0?"متقدمة على المنتج (باتجاه السحب)":"متأخرة عن المنتج"} بمقدار ${f2(Math.abs(dx))} مم. المنتج لا يدخل التجويف ويركب على الحافة الفولاذية، وعند نزول السكين تنسحق الحافة أو تنكسر.`),x:stF()});
+  else if(Math.abs(dx)>0.8) out.push({bad:0,t:L("Akış yönünde ürün zor oturuyor","Along the flow the part seats with difficulty","المنتج يجلس بصعوبة باتجاه السحب"),w:L(`Kalıplar ${f2(Math.abs(dx))} mm kaymış. Ürün göze sürterek giriyor, ağız kenarında iz kalır.`,`The dies are off by ${f2(Math.abs(dx))} mm. The part rubs as it enters the cavity and the rim gets marked.`,`القوالب منزاحة بمقدار ${f2(Math.abs(dx))} مم. المنتج يحتك عند دخوله التجويف ويبقى أثر على الحافة.`),x:stF()});
+  else if(Math.abs(dx)>0.5) out.push({bad:0,t:L("Flanş solda ve sağda eşit değil","Flange is not equal on the left and right","الحافة غير متساوية يسارًا ويمينًا"),w:L(`Sol ${f1(F+dx)} mm, sağ ${f1(F-dx)} mm.`,`Left ${f1(F+dx)} mm, right ${f1(F-dx)} mm.`,`اليسار ${f1(F+dx)} مم، اليمين ${f1(F-dx)} مم.`),x:stF()});
   // across the flow: each die by its own motors; merge when both ends show the same fault
+  const DIR={up:L("yukarı","up","إلى الأعلى"),dn:L("aşağı","down","إلى الأسفل")};
   const per=ENDS.map(([nm,t,mot])=>{ const s=cavState(t), f={};
-    if(Math.abs(s.seat)>1.5) f.seat={bad:1,t:"ürün alt kalıba oturmuyor",w:`Alt kalıbın gözleri ürüne göre ${f1(Math.abs(s.seat))} mm ${s.seat>0?"yukarıda":"aşağıda"}. Ürün göze girmiyor, çelik kenara biniyor.`,dir:s.seat>0?"aşağı":"yukarı",die:"Alt kalıbı"};
-    else if(Math.abs(s.seat)>0.8) f.seat={bad:0,t:"ürün alt kalıba zor oturuyor",w:`Alt kalıp ${f1(Math.abs(s.seat))} mm ${s.seat>0?"yukarı":"aşağı"} kaymış. Ürün göze sürterek giriyor.`,dir:s.seat>0?"aşağı":"yukarı",die:"Alt kalıbı"};
-    if(s.landT<0.2) f.top={bad:1,t:"üst kenar kesmiyor",w:"Bıçak üst kenarda alt kalıbın gözüne, yani boşluğa geliyor. Altında çelik yok, kesmez.",dir:"yukarı",die:"Üst kalıbı"};
-    if(s.landB<0.2) f.bot={bad:1,t:"alt kenar kesmiyor",w:"Bıçak alt kenarda alt kalıbın gözüne geliyor, altında çelik yok.",dir:"aşağı",die:"Üst kalıbı"};
-    if(s.landT>=0.2&&s.landB>=0.2&&Math.abs(s.flT-s.flB)>1) f.fl={bad:0,t:"flanş üstte ve altta eşit değil",w:`Üst ${f1(s.flT)} mm, alt ${f1(s.flB)} mm.`,dir:s.flT>s.flB?"aşağı":"yukarı",die:`Bıçağı yaklaşık ${Math.round(Math.abs(s.flT-s.flB)/2/0.1)} pals`};
+    if(Math.abs(s.seat)>1.5) f.seat={bad:1,t:L("ürün alt kalıba oturmuyor","part does not seat in the lower die","المنتج لا يجلس في القالب السفلي"),w:L(`Alt kalıbın gözleri ürüne göre ${f1(Math.abs(s.seat))} mm ${s.seat>0?"yukarıda":"aşağıda"}. Ürün göze girmiyor, çelik kenara biniyor.`,`The lower die cavities are ${f1(Math.abs(s.seat))} mm ${s.seat>0?"above":"below"} the part. The part does not drop in and rides on the steel edge.`,`تجاويف القالب السفلي ${s.seat>0?"أعلى":"أسفل"} المنتج بمقدار ${f1(Math.abs(s.seat))} مم. المنتج لا يدخل ويركب على الحافة الفولاذية.`),dir:s.seat>0?"dn":"up",die:"L"};
+    else if(Math.abs(s.seat)>0.8) f.seat={bad:0,t:L("ürün alt kalıba zor oturuyor","part seats in the lower die with difficulty","المنتج يجلس بصعوبة في القالب السفلي"),w:L(`Alt kalıp ${f1(Math.abs(s.seat))} mm ${s.seat>0?"yukarı":"aşağı"} kaymış. Ürün göze sürterek giriyor.`,`The lower die has shifted ${f1(Math.abs(s.seat))} mm ${s.seat>0?"up":"down"}. The part rubs as it enters.`,`القالب السفلي انزاح ${f1(Math.abs(s.seat))} مم ${s.seat>0?"إلى الأعلى":"إلى الأسفل"}. المنتج يحتك عند دخوله.`),dir:s.seat>0?"dn":"up",die:"L"};
+    if(s.landT<0.2) f.top={bad:1,t:L("üst kenar kesmiyor","top edge does not cut","الحافة العلوية لا تُقص"),w:L("Bıçak üst kenarda alt kalıbın gözüne, yani boşluğa geliyor. Altında çelik yok, kesmez.","At the top edge the knife lands over the lower die cavity, on empty space. There is no steel under it, so it does not cut.","عند الحافة العلوية تنزل السكين فوق تجويف القالب السفلي أي فوق فراغ. لا يوجد فولاذ تحتها فلا تقص."),dir:"up",die:"U"};
+    if(s.landB<0.2) f.bot={bad:1,t:L("alt kenar kesmiyor","bottom edge does not cut","الحافة السفلية لا تُقص"),w:L("Bıçak alt kenarda alt kalıbın gözüne geliyor, altında çelik yok.","At the bottom edge the knife lands over the lower die cavity; there is no steel under it.","عند الحافة السفلية تنزل السكين فوق تجويف القالب السفلي، ولا يوجد فولاذ تحتها."),dir:"dn",die:"U"};
+    if(s.landT>=0.2&&s.landB>=0.2&&Math.abs(s.flT-s.flB)>1) f.fl={bad:0,t:L("flanş üstte ve altta eşit değil","flange is not equal at top and bottom","الحافة غير متساوية في الأعلى والأسفل"),w:L(`Üst ${f1(s.flT)} mm, alt ${f1(s.flB)} mm.`,`Top ${f1(s.flT)} mm, bottom ${f1(s.flB)} mm.`,`الأعلى ${f1(s.flT)} مم، الأسفل ${f1(s.flB)} مم.`),dir:s.flT>s.flB?"dn":"up",die:"K",n:Math.round(Math.abs(s.flT-s.flB)/2/0.1)};
     return {nm,mot,f}; });
+  const who=o=>o.die==="L"?L("Alt kalıbı","the lower die","القالب السفلي"):o.die==="U"?L("Üst kalıbı","the upper die","القالب العلوي"):L(`Bıçağı yaklaşık ${o.n} pals`,`the knife about ${o.n} pulses`,`السكين حوالي ${o.n} نبضة`);
   for(const key of ["seat","top","bot","fl"]){ const a=per[0].f[key], b=per[1].f[key];
-    if(a&&b&&a.dir===b.dir) out.push({bad:a.bad||b.bad,t:`Tüm gözler: ${a.t}`,w:a.w,x:`${a.die} ${a.dir} al: iki motor birlikte (${a.dir==="yukarı"?"⇈":"⇊"}).`});
-    else for(const e of per){ const o=e.f[key]; if(o) out.push({bad:o.bad,t:`${e.nm}: ${o.t}`,w:o.w,x:`${o.die} ${o.dir} al: ${e.mot} motor (0.10 mm/pals).`}); } }
-  const rot=(d,nm)=>{ const L=K[d+"L"]+E[d+"L"], R=K[d+"R"]+E[d+"R"]; if(Math.abs(R-L)>0.6) out.push({bad:0,t:`${nm} dönmüş`,w:`Sağ uç ile sol uç arasında ${f1(Math.abs(R-L))} mm fark var, kalıp levhaya göre çapraz duruyor.`,x:`${nm==="Alt kalıp"?"Alt kalıbı":"Üst kalıbı"} ${R>L?"saat yönünde":"saat yönü tersine"} döndür.`}); };
-  rot("L","Alt kalıp"); rot("U","Bıçak (üst kalıp)");
-  if(K.tk<85) out.push({bad:1,t:"Bıçak soğuk, hiç kesmiyor",w:`Bıçak ${K.tk} °C. Plastik yumuşamadığı için bıçak levhayı ezer ama kesmez.`,x:"Bıçak ısıtmasını 100–150 °C bandına getir. Isıtma açık ama ısınmıyorsa rezistans veya termokupla bak."});
-  else if(K.tk<100) out.push({bad:0,t:"Bıçak soğuk: tüylenme ve çapak",w:`Bıçak ${K.tk} °C. Kesim yırtarak oluyor, kenarda ince plastik teller ve çapak kalır.`,x:"Sıcaklığı 100 °C'nin üstüne çıkar."});
-  else if(K.tk>170) out.push({bad:1,t:"Bıçak çok sıcak: kenar eriyor",w:`Bıçak ${K.tk} °C. Ağız eriyip kalınlaşıyor, plastik bıçağa yapışıp ip çekiyor.`,x:"Sıcaklığı 150 °C'nin altına indir, bıçağa yapışan plastiği temizle."});
-  else if(K.tk>150) out.push({bad:0,t:"Bıçak sıcaklığı yüksek",w:`Bıçak ${K.tk} °C. Kenarda erime ve ip çekme başlar.`,x:"Sıcaklığı 150 °C'nin altına indir."});
-  if(CUT&&LOCAL&&!CUT[LOCAL.c+":"+LOCAL.s]&&sideCuts(cavState(CAV[LOCAL.c].t),LOCAL.s)) out.push({bad:1,t:`${LOCAL.c+1}. gözün ${SN[LOCAL.s]} kenarı lokal kesmiyor`,w:"Ayar doğru ama bu noktada bıçak çeliğe yeterince basmıyor. Bıçak ya da çelik o noktada aşınmış veya çökmüş olabilir.",x:"Görünümde kesmeyen kenara dokun: alt çeliğin altına o noktaya bir parça A4 kağıdı koyulur, nokta yükselir ve bıçak keser. Sonra tekrar test kesimi yap."});
-  for(const k in PAPER) if(PAPER[k]>=3){ const [c,s]=k.split(":"); out.push({bad:0,t:`${+c+1}. göz ${SN[s]} kenarda fazla kağıt`,w:`${PAPER[k]} kat kağıt var. Nokta fazla yükseldi, bıçak oraya sert vurur; bıçak körelir, çelik ezilir.`,x:"Kağıdı azalt, genelde 1 kat yeterlidir."}); }
+    if(a&&b&&a.dir===b.dir) out.push({bad:a.bad||b.bad,t:L("Tüm gözler: ","All cavities: ","كل التجاويف: ")+a.t,w:a.w,x:L(`${who(a)} ${DIR[a.dir]} al: iki motor birlikte (${a.dir==="up"?"⇈":"⇊"}).`,`Move ${who(a)} ${DIR[a.dir]}: both motors together (${a.dir==="up"?"⇈":"⇊"}).`,`حرّك ${who(a)} ${DIR[a.dir]}: المحركان معًا (${a.dir==="up"?"⇈":"⇊"}).`)});
+    else for(const e of per){ const o=e.f[key]; if(o){ const mot=e.mot==="SOL"?L("SOL","LEFT","الأيسر"):L("SAĞ","RIGHT","الأيمن"); out.push({bad:o.bad,t:`${e.nm}: ${o.t}`,w:o.w,x:L(`${who(o)} ${DIR[o.dir]} al: ${mot} motor (0.10 mm/pals).`,`Move ${who(o)} ${DIR[o.dir]}: ${mot} motor (0.10 mm/pulse).`,`حرّك ${who(o)} ${DIR[o.dir]}: المحرك ${mot} (0.10 مم/نبضة).`)}); } } }
+  const rot=(d)=>{ const Lm=K[d+"L"]+E[d+"L"], Rm=K[d+"R"]+E[d+"R"]; if(Math.abs(Rm-Lm)>0.6){ const lower=d==="L", cwz=Rm>Lm;
+    out.push({bad:0,t:lower?L("Alt kalıp dönmüş","Lower die is rotated","القالب السفلي مُدار"):L("Bıçak (üst kalıp) dönmüş","Knife (upper die) is rotated","السكين (القالب العلوي) مُدارة"),w:L(`Sağ uç ile sol uç arasında ${f1(Math.abs(Rm-Lm))} mm fark var, kalıp levhaya göre çapraz duruyor.`,`There is ${f1(Math.abs(Rm-Lm))} mm difference between the right and left ends; the die sits skewed to the sheet.`,`يوجد فرق ${f1(Math.abs(Rm-Lm))} مم بين الطرف الأيمن والأيسر، والقالب مائل بالنسبة للوح.`),x:L(`${lower?"Alt kalıbı":"Üst kalıbı"} ${cwz?"saat yönünde":"saat yönü tersine"} döndür.`,`Rotate ${lower?"the lower die":"the upper die"} ${cwz?"clockwise":"counter-clockwise"}.`,`أدِر ${lower?"القالب السفلي":"القالب العلوي"} ${cwz?"باتجاه عقارب الساعة":"عكس عقارب الساعة"}.`)}); } };
+  rot("L"); rot("U");
+  if(K.tk<85) out.push({bad:1,t:L("Bıçak soğuk, hiç kesmiyor","Knife is cold, does not cut at all","السكين باردة ولا تقص إطلاقًا"),w:L(`Bıçak ${K.tk} °C. Plastik yumuşamadığı için bıçak levhayı ezer ama kesmez.`,`Knife at ${K.tk} °C. The plastic does not soften, so the knife crushes the sheet but does not cut.`,`السكين ${K.tk} °م. البلاستيك لا يلين فتضغط السكين اللوح دون أن تقصه.`),x:L("Bıçak ısıtmasını 100–150 °C bandına getir. Isıtma açık ama ısınmıyorsa rezistans veya termokupla bak.","Bring the knife heating into the 100–150 °C band. If heating is on but it does not warm up, check the heater element or thermocouple.","اضبط تسخين السكين في نطاق 100–150 °م. إذا كان التسخين يعمل ولا يسخن فافحص السخان أو المزدوجة الحرارية.")});
+  else if(K.tk<100) out.push({bad:0,t:L("Bıçak soğuk: tüylenme ve çapak","Knife cold: hairs and burrs","السكين باردة: شعيرات وزوائد"),w:L(`Bıçak ${K.tk} °C. Kesim yırtarak oluyor, kenarda ince plastik teller ve çapak kalır.`,`Knife at ${K.tk} °C. The cut tears; thin plastic hairs and burrs stay on the edge.`,`السكين ${K.tk} °م. القص يتم بالتمزيق وتبقى شعيرات بلاستيكية رفيعة وزوائد على الحافة.`),x:L("Sıcaklığı 100 °C'nin üstüne çıkar.","Raise the temperature above 100 °C.","ارفع الحرارة فوق 100 °م.")});
+  else if(K.tk>170) out.push({bad:1,t:L("Bıçak çok sıcak: kenar eriyor","Knife too hot: edge melts","السكين ساخنة جدًا: الحافة تذوب"),w:L(`Bıçak ${K.tk} °C. Ağız eriyip kalınlaşıyor, plastik bıçağa yapışıp ip çekiyor.`,`Knife at ${K.tk} °C. The rim melts and thickens; plastic sticks to the knife and pulls strings.`,`السكين ${K.tk} °م. الحافة تذوب وتسمك، والبلاستيك يلتصق بالسكين ويشكّل خيوطًا.`),x:L("Sıcaklığı 150 °C'nin altına indir, bıçağa yapışan plastiği temizle.","Lower the temperature below 150 °C and clean the plastic off the knife.","اخفض الحرارة تحت 150 °م ونظّف البلاستيك الملتصق بالسكين.")});
+  else if(K.tk>150) out.push({bad:0,t:L("Bıçak sıcaklığı yüksek","Knife temperature high","حرارة السكين مرتفعة"),w:L(`Bıçak ${K.tk} °C. Kenarda erime ve ip çekme başlar.`,`Knife at ${K.tk} °C. The edge starts to melt and pull strings.`,`السكين ${K.tk} °م. يبدأ الذوبان وتكوّن الخيوط على الحافة.`),x:L("Sıcaklığı 150 °C'nin altına indir.","Lower the temperature below 150 °C.","اخفض الحرارة تحت 150 °م.")});
+  if(CUT&&LOCAL&&!CUT[LOCAL.c+":"+LOCAL.s]&&sideCuts(cavState(CAV[LOCAL.c].t),LOCAL.s)) out.push({bad:1,t:L(`${LOCAL.c+1}. gözün ${SN[LOCAL.s]} kenarı lokal kesmiyor`,`Cavity ${LOCAL.c+1}: ${SNx(LOCAL.s)} edge does not cut at one spot`,`التجويف ${LOCAL.c+1}: الحافة ${SNx(LOCAL.s)} لا تُقص في نقطة واحدة`),w:L("Ayar doğru ama bu noktada bıçak çeliğe yeterince basmıyor. Bıçak ya da çelik o noktada aşınmış veya çökmüş olabilir.","The setting is right, but at this spot the knife does not press hard enough on the steel. The knife or the steel may be worn or sunk there.","الضبط صحيح لكن السكين لا تضغط بما يكفي على الفولاذ في هذه النقطة. قد تكون السكين أو الفولاذ متآكلة أو هابطة هناك."),x:L("Görünümde kesmeyen kenara dokun: alt çeliğin altına o noktaya bir parça A4 kağıdı koyulur, nokta yükselir ve bıçak keser. Sonra tekrar test kesimi yap.","Tap the edge that does not cut in the view: a piece of A4 paper goes under the lower steel at that spot, the spot rises and the knife cuts. Then run a test cut again.","اضغط على الحافة التي لا تُقص في الرسم: توضع قطعة ورق A4 تحت الفولاذ السفلي في تلك النقطة فترتفع وتقص السكين. ثم أعِد قص الاختبار.")});
+  for(const k in PAPER) if(PAPER[k]>=3){ const [c,sd]=k.split(":"); out.push({bad:0,t:L(`${+c+1}. göz ${SN[sd]} kenarda fazla kağıt`,`Cavity ${+c+1}: too much paper at the ${SNx(sd)} edge`,`التجويف ${+c+1}: ورق زائد عند الحافة ${SNx(sd)}`),w:L(`${PAPER[k]} kat kağıt var. Nokta fazla yükseldi, bıçak oraya sert vurur; bıçak körelir, çelik ezilir.`,`There are ${PAPER[k]} layers of paper. The spot is too high, the knife hits it hard; the knife dulls and the steel gets crushed.`,`يوجد ${PAPER[k]} طبقات ورق. النقطة ارتفعت أكثر من اللازم فتضربها السكين بقوة، فتكلّ السكين وينسحق الفولاذ.`),x:L("Kağıdı azalt, genelde 1 kat yeterlidir.","Reduce the paper; one layer is usually enough.","قلّل الورق، طبقة واحدة تكفي عادة.")}); }
   return out;
 }
 function drawK(){
   const s=5, cl=v=>Math.max(-8,Math.min(8,v)), dx=cl(dxNow());     // 5x exaggeration of the shifts
   const T=`fill="#8ea3ae" font-family="Chakra Petch" letter-spacing="1"`;
   let g=`<defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#8ea3ae"/></marker></defs><rect width="640" height="400" fill="#0d1317"/>`;
-  g+=`<text x="20" y="28" ${T} font-size="12" letter-spacing="1.5">KESME İSTASYONU · ÜSTTEN</text>`;
-  g+=`<text x="16" y="200" ${T} font-size="10" transform="rotate(-90 16 200)" text-anchor="middle">SOL MOTOR ↕</text><text x="628" y="200" ${T} font-size="10" transform="rotate(-90 628 200)" text-anchor="middle">SAĞ MOTOR ↕</text>`;
-  g+=`<line x1="250" y1="388" x2="400" y2="388" stroke="#8ea3ae" stroke-width="1.5" marker-end="url(#ar)"/><text x="325" y="382" fill="#8ea3ae" font-size="10" text-anchor="middle" font-family="IBM Plex Mono">AKIŞ YÖNÜ · İSTASYON ◀ ▶</text>`;
+  g+=`<text x="20" y="28" ${T} font-size="12" letter-spacing="1.5">${L("KESME İSTASYONU · ÜSTTEN","CUTTING STATION · TOP VIEW","محطة القص · منظر علوي")}</text>`;
+  g+=`<text x="16" y="200" ${T} font-size="10" transform="rotate(-90 16 200)" text-anchor="middle">${L("SOL MOTOR ↕","LEFT MOTOR ↕","المحرك الأيسر ↕")}</text><text x="628" y="200" ${T} font-size="10" transform="rotate(-90 628 200)" text-anchor="middle">${L("SAĞ MOTOR ↕","RIGHT MOTOR ↕","المحرك الأيمن ↕")}</text>`;
+  g+=`<line x1="250" y1="388" x2="400" y2="388" stroke="#8ea3ae" stroke-width="1.5" marker-end="url(#ar)"/><text x="325" y="382" fill="#8ea3ae" font-size="10" text-anchor="middle" font-family="IBM Plex Mono">${L("AKIŞ YÖNÜ · İSTASYON ◀ ▶","FLOW · STATION ◀ ▶","اتجاه السحب · المحطة ◀ ▶")}</text>`;
   // lower steel plate: shifted by the station (X) and by the motors (Y), rotated by the left/right difference
   const L0=cl(dieY("L",0)), L1=cl(dieY("L",1)), ang=-Math.atan2((L1-L0)*s,390)*180/Math.PI, mid=(L0+L1)/2*s;
   g+=`<g transform="translate(${dx*s} ${-mid}) rotate(${ang} 320 200)"><rect x="40" y="48" width="560" height="304" rx="6" fill="#55626b" stroke="#77848c"/></g>`;
@@ -311,16 +351,16 @@ function drawK(){
   });
   $("#kv").innerHTML=g;
   const cls=(v,a,b)=>Math.abs(v)>b?"bd":Math.abs(v)>a?"wr":"ok", lc=v=>v<0.2?"bd":v<0.8?"wr":"ok", dxv=dxNow();
-  let t=`<tr><th></th><th>Oturma</th><th>Bıçak çelikte</th><th>Flanş</th></tr>`;
-  t+=`<tr><td>Akış yönü<br><small>istasyon · sol / sağ</small></td><td class="${cls(dxv,0.8,1.5)}">${sg(dxv)} mm</td><td class="ok">${f1(F)} / ${f1(F)}</td><td><span class="${cls(dxv,0.5,0.8)}">${f1(F+dxv)} / ${f1(F-dxv)}</span></td></tr>`;
-  for(const [nm,tt] of ENDS){ const s=cavState(tt); t+=`<tr><td>${nm.split(" (")[0]}<br><small>üst / alt</small></td><td class="${cls(s.seat,0.8,1.5)}">${sg(s.seat)} mm</td><td><span class="${lc(s.landT)}">${f1(s.landT)}</span> / <span class="${lc(s.landB)}">${f1(s.landB)}</span></td><td><span class="${lc(s.flT)}">${f1(s.flT)}</span> / <span class="${lc(s.flB)}">${f1(s.flB)}</span></td></tr>`; }
+  let t=`<tr><th></th><th>${L("Oturma","Seating","الجلوس")}</th><th>${L("Bıçak çelikte","Knife on steel","السكين على الفولاذ")}</th><th>${L("Flanş","Flange","الحافة")}</th></tr>`;
+  t+=`<tr><td>${L("Akış yönü","Along the flow","باتجاه السحب")}<br><small>${L("istasyon · sol / sağ","station · left / right","المحطة · يسار / يمين")}</small></td><td class="${cls(dxv,0.8,1.5)}">${sg(dxv)} mm</td><td class="ok">${f1(F)} / ${f1(F)}</td><td><span class="${cls(dxv,0.5,0.8)}">${f1(F+dxv)} / ${f1(F-dxv)}</span></td></tr>`;
+  for(const [nm,tt] of ENDS){ const s=cavState(tt); t+=`<tr><td>${nm.split(" (")[0]}<br><small>${L("üst / alt","top / bottom","أعلى / أسفل")}</small></td><td class="${cls(s.seat,0.8,1.5)}">${sg(s.seat)} mm</td><td><span class="${lc(s.landT)}">${f1(s.landT)}</span> / <span class="${lc(s.landB)}">${f1(s.landB)}</span></td><td><span class="${lc(s.flT)}">${f1(s.flT)}</span> / <span class="${lc(s.flB)}">${f1(s.flB)}</span></td></tr>`; }
   $("#ktbl").innerHTML=t;
   const out=kFaults(), bad=out.some(o=>o.bad), st=$("#kst");
   st.className="status"+(bad?" bad":out.length?" warn":"");
-  st.textContent=bad?"✖ KESİM HATALI":out.length?"⚠ KESİYOR AMA AYAR GEREKİYOR":"✔ KESİM DOĞRU: ürün oturuyor, bıçak ortada, sıcaklık bantta";
-  if(CUT) st.textContent+=` · son test: ${Object.values(CUT).filter(Boolean).length}/32 kenar kesti`;
+  st.textContent=bad?L("✖ KESİM HATALI","✖ CUT FAULTY","✖ القص معيب"):out.length?L("⚠ KESİYOR AMA AYAR GEREKİYOR","⚠ CUTS BUT NEEDS ADJUSTING","⚠ يقص لكنه يحتاج ضبطًا"):L("✔ KESİM DOĞRU: ürün oturuyor, bıçak ortada, sıcaklık bantta","✔ CUT OK: part seats, knife centred, temperature in band","✔ القص سليم: المنتج يجلس، السكين في المنتصف، الحرارة ضمن النطاق");
+  if(CUT) st.textContent+=L(` · son test: ${Object.values(CUT).filter(Boolean).length}/32 kenar kesti`,` · last test: ${Object.values(CUT).filter(Boolean).length}/32 edges cut`,` · آخر اختبار: ${Object.values(CUT).filter(Boolean).length}/32 حافة قُصّت`);
   $("#kf").innerHTML=faultHtml(out);
-  $("#stv").innerHTML=`${K.pul>0?"+":""}${K.pul} pals<small>${sg(K.pul*0.25)} mm</small>`;
+  $("#stv").innerHTML=`${K.pul>0?"+":""}${K.pul} ${L("pals","pulses","نبضة")}<small>${sg(K.pul*0.25)} mm</small>`;
   for(const k of ["UR","UL","LR","LL"]) document.querySelector(`[data-r="${k}"]`).textContent=sg(K[k]);
   document.querySelector('[data-k="tk"] .v').innerHTML=K.tk+"<small>°C</small>";
 }
@@ -345,15 +385,16 @@ function dCalc(){
 }
 function dFaults(){
   const C=dCalc(), out=[];
-  if(D.p1<=D.p0+20) out.push({bad:1,t:"1. kademe başlangıca çok yakın",w:`Başlangıç ${D.p0} mm, 1. kademe ${D.p1} mm. İtici ürünü yığına kadar itemiyor.`,x:"1. kademeyi başlangıçtan yukarıda tut."});
-  if(D.p2<=D.p1+20) out.push({bad:1,t:"2. kademe 1. kademenin üstünde değil",w:`1. kademe ${D.p1} mm, 2. kademe ${D.p2} mm. Yığın süpürme seviyesine çıkamıyor, süpürme yığını yakalayamaz.`,x:"2. kademeyi 1. kademenin yeterince üstüne al."});
-  if(C.T1>C.P+0.005) out.push({bad:1,t:"Dizme çevrime yetişmiyor",w:`İtici başlangıçtan 1. kademeye gidip dönmek için ${f2(C.T1)} s harcıyor ama çevrim ${f2(C.P)} s. Sonraki ürün geldiğinde itici henüz aşağıda değil, ürün iticiye çarpar.`,x:"1. kademe hızını veya geri hızı artır, ya da başlangıç ile 1. kademe arasını kısalt."});
-  if(C.T2>C.P+0.005&&C.d2>20) out.push({bad:1,t:"2. kademe hareketi çevrime sığmıyor",w:`Son üründe itici 2. kademeye çıkıp dönmek için ${f2(C.T2)} s harcıyor, çevrim ${f2(C.P)} s.`,x:"2. kademe hızını veya geri hızı artır."});
-  if(D.v1>60) out.push({bad:0,t:"1. kademe hızı yüksek",w:`%${D.v1} ile ürün yığına sert çarpıyor, ağızlar ezilebilir. (Bu sınır tahmini, sahadaki değere göre düzeltilecek.)`,x:"Çevrime yetiştiği sürece 1. kademe hızını düşük tut."});
-  if(C.H>540) out.push({bad:1,t:"Yığın çok yüksek",w:`${D.n} adet ${C.H} mm'lik yığın yapıyor; 2. kademeye çıkarken dengede durmaz.`,x:"İstenen adedi azalt."});
-  if(C.vf>vTip(C.H)) out.push({bad:1,t:"Süpürmede yığın devriliyor",w:PIST?`Piston sabit ve hızlı iter (~${PISTV} mm/s). ${C.H} mm'lik yığın bu darbede devrilir.`:`${C.H} mm'lik yığını ${Math.round(C.vf)} mm/s ile itince üstü geride kalıp devriliyor. Bu yükseklik için en fazla %${Math.floor(vTip(C.H)/SW*100)} olmalı.`,x:PIST?"İstenen adedi azalt. Piston hızı kısma valfinden ayarlanabiliyorsa bakımcıya düşürt.":`Süpürme ileri hızını %${Math.floor(vTip(C.H)/SW*100)} altına indir ya da adedi azalt.`});
-  if(!PIST&&D.sd<CLEAR) out.push({bad:1,t:"Yığın konveyöre tam geçmedi",w:`Süpürme ${D.sd} mm gidiyor, yığının konveyöre tam geçmesi için en az ${CLEAR} mm gerekli.`,x:`İleri mesafeyi en az ${CLEAR} mm yap.`});
-  if(C.swStart+C.tSw>C.window) out.push({bad:1,t:"Süpürme bitmeden yeni yığın geliyor",w:`Süpürme ${f2(C.tSw)} s sürüyor; bitişi ${f2(C.swStart+C.tSw)} s. Sonraki yığın ${f2(C.window)} s sonra 2. kademeye çıkıyor.`,x:"Süpürme ileri ve geri hızını artır ya da ileri mesafeyi kısalt."});
+  if(D.p1<=D.p0+20) out.push({bad:1,t:L("1. kademe başlangıca çok yakın","Level 1 is too close to the start","المستوى 1 قريب جدًا من البداية"),w:L(`Başlangıç ${D.p0} mm, 1. kademe ${D.p1} mm. İtici ürünü yığına kadar itemiyor.`,`Start ${D.p0} mm, level 1 ${D.p1} mm. The pusher cannot push the part up to the stack.`,`البداية ${D.p0} مم، المستوى 1 ${D.p1} مم. الدافع لا يستطيع دفع المنتج حتى الرصّة.`),x:L("1. kademeyi başlangıçtan yukarıda tut.","Keep level 1 well above the start.","اجعل المستوى 1 أعلى من البداية بوضوح.")});
+  if(D.p2<=D.p1+20) out.push({bad:1,t:L("2. kademe 1. kademenin üstünde değil","Level 2 is not above level 1","المستوى 2 ليس فوق المستوى 1"),w:L(`1. kademe ${D.p1} mm, 2. kademe ${D.p2} mm. Yığın süpürme seviyesine çıkamıyor, süpürme yığını yakalayamaz.`,`Level 1 ${D.p1} mm, level 2 ${D.p2} mm. The stack cannot rise to the sweep level, so the sweep cannot catch it.`,`المستوى 1 ${D.p1} مم، المستوى 2 ${D.p2} مم. الرصّة لا تصل إلى مستوى الكاسح فلا يستطيع الكاسح التقاطها.`),x:L("2. kademeyi 1. kademenin yeterince üstüne al.","Set level 2 well above level 1.","اجعل المستوى 2 أعلى من المستوى 1 بما يكفي.")});
+  if(C.T1>C.P+0.005) out.push({bad:1,t:L("Dizme çevrime yetişmiyor","Stacker cannot keep up with the cycle","الرصّ لا يواكب الدورة"),w:L(`İtici başlangıçtan 1. kademeye gidip dönmek için ${f2(C.T1)} s harcıyor ama çevrim ${f2(C.P)} s. Sonraki ürün geldiğinde itici henüz aşağıda değil, ürün iticiye çarpar.`,`The pusher needs ${f2(C.T1)} s to go from the start to level 1 and back, but the cycle is ${f2(C.P)} s. When the next part arrives the pusher is not down yet and the part hits it.`,`يحتاج الدافع ${f2(C.T1)} ث للذهاب من البداية إلى المستوى 1 والعودة، لكن الدورة ${f2(C.P)} ث. عندما يصل المنتج التالي لا يكون الدافع قد نزل بعد فيصطدم به.`),x:L("1. kademe hızını veya geri hızı artır, ya da başlangıç ile 1. kademe arasını kısalt.","Raise the level 1 speed or the return speed, or shorten the distance between the start and level 1.","زِد سرعة المستوى 1 أو سرعة الرجوع، أو قصّر المسافة بين البداية والمستوى 1.")});
+  if(C.T2>C.P+0.005&&C.d2>20) out.push({bad:1,t:L("2. kademe hareketi çevrime sığmıyor","Level 2 stroke does not fit in the cycle","حركة المستوى 2 لا تتسع في الدورة"),w:L(`Son üründe itici 2. kademeye çıkıp dönmek için ${f2(C.T2)} s harcıyor, çevrim ${f2(C.P)} s.`,`On the last part the pusher needs ${f2(C.T2)} s to rise to level 2 and come back; the cycle is ${f2(C.P)} s.`,`في المنتج الأخير يحتاج الدافع ${f2(C.T2)} ث للصعود إلى المستوى 2 والعودة، والدورة ${f2(C.P)} ث.`),x:L("2. kademe hızını veya geri hızı artır.","Raise the level 2 speed or the return speed.","زِد سرعة المستوى 2 أو سرعة الرجوع.")});
+  if(D.v1>60) out.push({bad:0,t:L("1. kademe hızı yüksek","Level 1 speed is high","سرعة المستوى 1 مرتفعة"),w:L(`%${D.v1} ile ürün yığına sert çarpıyor, ağızlar ezilebilir. (Bu sınır tahmini, sahadaki değere göre düzeltilecek.)`,`At ${D.v1}% the part hits the stack hard and rims can get crushed. (This limit is an estimate and will be corrected from field values.)`,`عند ${D.v1}% يصطدم المنتج بالرصّة بقوة وقد تنسحق الحواف. (هذا الحد تقديري وسيُصحَّح حسب قيم الميدان.)`),x:L("Çevrime yetiştiği sürece 1. kademe hızını düşük tut.","Keep the level 1 speed low as long as it keeps up with the cycle.","أبقِ سرعة المستوى 1 منخفضة ما دامت تواكب الدورة.")});
+  if(C.H>540) out.push({bad:1,id:"tall",t:L("Yığın çok yüksek","Stack is too tall","الرصّة عالية جدًا"),w:L(`${D.n} adet ${C.H} mm'lik yığın yapıyor; 2. kademeye çıkarken dengede durmaz.`,`${D.n} parts make a ${C.H} mm stack; it will not stay balanced while rising to level 2.`,`${D.n} قطعة تصنع رصّة بارتفاع ${C.H} مم، ولن تبقى متوازنة أثناء الصعود إلى المستوى 2.`),x:L("İstenen adedi azalt.","Reduce the target count.","قلّل العدد المطلوب.")});
+  const mx=Math.floor(vTip(C.H)/SW*100);
+  if(C.vf>vTip(C.H)) out.push({bad:1,id:"tip",t:L("Süpürmede yığın devriliyor","Stack tips over during the sweep","الرصّة تنقلب أثناء الكسح"),w:PIST?L(`Piston sabit ve hızlı iter (~${PISTV} mm/s). ${C.H} mm'lik yığın bu darbede devrilir.`,`The cylinder pushes at a fixed, high speed (~${PISTV} mm/s). A ${C.H} mm stack tips over from this hit.`,`المكبس يدفع بسرعة ثابتة وعالية (~${PISTV} مم/ث). رصّة بارتفاع ${C.H} مم تنقلب من هذه الضربة.`):L(`${C.H} mm'lik yığını ${Math.round(C.vf)} mm/s ile itince üstü geride kalıp devriliyor. Bu yükseklik için en fazla %${mx} olmalı.`,`Pushing a ${C.H} mm stack at ${Math.round(C.vf)} mm/s leaves the top behind and it tips over. For this height it should be ${mx}% at most.`,`عند دفع رصّة بارتفاع ${C.H} مم بسرعة ${Math.round(C.vf)} مم/ث يتأخر أعلاها فتنقلب. لهذا الارتفاع يجب ألا تزيد عن ${mx}%.`),x:PIST?L("İstenen adedi azalt. Piston hızı kısma valfinden ayarlanabiliyorsa bakımcıya düşürt.","Reduce the target count. If the cylinder speed can be set with a flow control valve, have maintenance lower it.","قلّل العدد المطلوب. إذا أمكن ضبط سرعة المكبس بصمام خنق فاطلب من فريق الصيانة خفضها."):L(`Süpürme ileri hızını %${mx} altına indir ya da adedi azalt.`,`Lower the sweep forward speed below ${mx}% or reduce the count.`,`اخفض سرعة الكسح الأمامية تحت ${mx}% أو قلّل العدد.`)});
+  if(!PIST&&D.sd<CLEAR) out.push({bad:1,id:"short",t:L("Yığın konveyöre tam geçmedi","Stack did not fully reach the conveyor","الرصّة لم تنتقل بالكامل إلى الناقل"),w:L(`Süpürme ${D.sd} mm gidiyor, yığının konveyöre tam geçmesi için en az ${CLEAR} mm gerekli.`,`The sweep travels ${D.sd} mm; the stack needs at least ${CLEAR} mm to get fully onto the conveyor.`,`الكاسح يتحرك ${D.sd} مم، وتحتاج الرصّة ${CLEAR} مم على الأقل لتنتقل بالكامل إلى الناقل.`),x:L(`İleri mesafeyi en az ${CLEAR} mm yap.`,`Set the forward distance to at least ${CLEAR} mm.`,`اجعل مسافة التقدم ${CLEAR} مم على الأقل.`)});
+  if(C.swStart+C.tSw>C.window) out.push({bad:1,t:L("Süpürme bitmeden yeni yığın geliyor","New stack arrives before the sweep finishes","رصّة جديدة تصل قبل انتهاء الكسح"),w:L(`Süpürme ${f2(C.tSw)} s sürüyor; bitişi ${f2(C.swStart+C.tSw)} s. Sonraki yığın ${f2(C.window)} s sonra 2. kademeye çıkıyor.`,`The sweep takes ${f2(C.tSw)} s and ends at ${f2(C.swStart+C.tSw)} s. The next stack rises to level 2 after ${f2(C.window)} s.`,`الكسح يستغرق ${f2(C.tSw)} ث وينتهي عند ${f2(C.swStart+C.tSw)} ث. الرصّة التالية تصعد إلى المستوى 2 بعد ${f2(C.window)} ث.`),x:L("Süpürme ileri ve geri hızını artır ya da ileri mesafeyi kısalt.","Raise the sweep forward and back speeds, or shorten the forward distance.","زِد سرعتي الكسح الأمامية والخلفية، أو قصّر مسافة التقدم.")});
   return {out,C};
 }
 // ---------- stacker animation: real-time motion profile ----------
@@ -366,23 +407,23 @@ function prof(t,d,pct){ // position along a move of length d after t seconds (tr
 function drawD(){
   const {out,C}=dFaults(), y0=510, sc=0.62, X=400, yOf=p=>y0-30-p*sc;   // vertical axis: mm -> px
   const TW=150, TH=34;                                                // tray top width, depth
-  let g=`<rect width="640" height="530" fill="#0d1317"/><text x="624" y="24" text-anchor="end" fill="#8ea3ae" font-size="12" font-family="Chakra Petch" letter-spacing="1.5">DİZME İTİCİ</text>`;
+  let g=`<rect width="640" height="530" fill="#0d1317"/><text x="624" y="24" text-anchor="end" fill="#8ea3ae" font-size="12" font-family="Chakra Petch" letter-spacing="1.5">${L("DİZME İTİCİ","STACKER PUSHER","دافع الرصّ")}</text>`;
   // tray shape: open V with flat bottom (own drawing)
   const tray=(y,stroke,op,dash)=>`<path d="M${X-TW/2},${y-TH} L${X-TW/2+8},${y-TH-6} M${X-TW/2+8},${y-TH} L${X-TW/2+30},${y} L${X+TW/2-30},${y} L${X+TW/2-8},${y-TH} M${X+TW/2-8},${y-TH} L${X+TW/2},${y-TH-6}" fill="none" stroke="${stroke}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity="${op}" ${dash?'stroke-dasharray="6 6"':''}/>`;
-  const L=[{p:D.p0,t:"BAŞLANGIÇ",v:D.p0+" mm",c:"#8ea3ae"},{p:D.p1,t:"1. KADEME",v:D.p1+" mm",c:"#5fcf8f"},{p:D.p2,t:"2. KADEME",v:D.p2+" mm",c:"#8fd8e6"}];
+  const LV=[{p:D.p0,t:L("BAŞLANGIÇ","START","البداية"),v:D.p0+" mm",c:"#8ea3ae"},{p:D.p1,t:L("1. KADEME","LEVEL 1","المستوى 1"),v:D.p1+" mm",c:"#5fcf8f"},{p:D.p2,t:L("2. KADEME","LEVEL 2","المستوى 2"),v:D.p2+" mm",c:"#8fd8e6"}];
   // guide rails from level 1 up past level 2
   const rt=yOf(D.p2)-TH-26, rb=yOf(D.p1)+6;
   g+=`<rect x="${X-TW/2-16}" y="${rt}" width="9" height="${rb-rt}" rx="3" fill="#4a5b66"/><rect x="${X+TW/2+7}" y="${rt}" width="9" height="${rb-rt}" rx="3" fill="#4a5b66"/>`;
   // ghost trays + labels with dashed leaders on the left
-  for(const l of L){ const y=yOf(l.p);
+  for(const l of LV){ const y=yOf(l.p);
     g+=tray(y,l.c,.28,true);
     g+=`<line x1="150" y1="${y-TH/2}" x2="${X-TW/2-20}" y2="${y-TH/2}" stroke="${l.c}" stroke-dasharray="5 5" opacity=".75"/>`;
     g+=`<text x="16" y="${y-TH/2-4}" fill="${l.c}" font-size="12" font-family="Chakra Petch" font-weight="600" letter-spacing="1">${l.t}</text><text x="16" y="${y-TH/2+13}" fill="#e2eaee" font-size="14" font-family="IBM Plex Mono">${l.v}</text>`; }
   // speed labels between the levels, with direction arrows
   const sp=(y,t,v,dir,c)=>`<text x="16" y="${y-2}" fill="#8ea3ae" font-size="11" font-family="Chakra Petch" letter-spacing="1">${t}</text><text x="16" y="${y+14}" fill="${c}" font-size="14" font-family="IBM Plex Mono">%${v}</text><line x1="150" y1="${y+4}" x2="${X-TW/2-30}" y2="${y+4}" stroke="${c}" stroke-dasharray="2 5" opacity=".6"/><path d="M${X-TW/2-30},${y+4+(dir<0?10:-10)} L${X-TW/2-30},${y+4+(dir<0?-10:10)} M${X-TW/2-35},${y+4+(dir<0?-4:4)} L${X-TW/2-30},${y+4+(dir<0?-10:10)} L${X-TW/2-25},${y+4+(dir<0?-4:4)}" stroke="${c}" stroke-width="2" fill="none"/>`;
-  g+=sp((yOf(D.p0)+yOf(D.p1))/2-TH/2,"1. KADEME HIZI",D.v1,-1,"#5fcf8f");
-  g+=sp((yOf(D.p1)+yOf(D.p2))/2-TH/2,"2. KADEME HIZI",D.v2,-1,"#8fd8e6");
-  g+=sp((yOf(D.p0)+yOf(D.p1))/2-TH/2+44,"GERİ HIZ",D.vb,1,"#f2c94c");
+  g+=sp((yOf(D.p0)+yOf(D.p1))/2-TH/2,L("1. KADEME HIZI","LEVEL 1 SPEED","سرعة المستوى 1"),D.v1,-1,"#5fcf8f");
+  g+=sp((yOf(D.p1)+yOf(D.p2))/2-TH/2,L("2. KADEME HIZI","LEVEL 2 SPEED","سرعة المستوى 2"),D.v2,-1,"#8fd8e6");
+  g+=sp((yOf(D.p0)+yOf(D.p1))/2-TH/2+44,L("GERİ HIZ","RETURN SPEED","سرعة الرجوع"),D.vb,1,"#f2c94c");
   // stack held on level 1 (lifts with the tray during the 2nd level stroke)
   const lift=(A.phase==="up2"||A.phase==="wait")?Math.max(0,A.pos-D.p1)*sc:0;
   const ch=TH-4, cup=(ytop,col)=>`<path d="M${X-TW/2+12},${ytop} L${X+TW/2-12},${ytop} L${X+TW/2-34},${ytop+ch} L${X-TW/2+34},${ytop+ch} Z" fill="${col}" stroke="#7a1f19" stroke-width=".8"/>`;
@@ -400,33 +441,33 @@ function drawD(){
     g+=`<rect x="${cx0}" y="${cy}" width="${cx1-cx0}" height="${bh}" rx="${bh/2}" fill="#eef2f4" stroke="#ffffff" stroke-width="1.5"/>`;
     g+=`<line x1="${cx0+bh/2}" y1="${cy+bh/2}" x2="${cx1-bh/2}" y2="${cy+bh/2}" stroke="#b9c4ca" stroke-width="1.5" stroke-dasharray="10 14" stroke-dashoffset="${-off}"/>`;
     g+=`<circle cx="${cx0+bh/2}" cy="${cy+bh/2}" r="${bh/2-2}" fill="#c9d3d8" stroke="#8a979e"/><circle cx="${cx1-bh/2}" cy="${cy+bh/2}" r="${bh/2-2}" fill="#c9d3d8" stroke="#8a979e"/>`;
-    g+=`<text x="${(cx0+cx1)/2}" y="${cy+32}" fill="#eef2f4" font-size="11" text-anchor="middle" font-family="Chakra Petch" letter-spacing="2">KONVEYÖR ➜</text>`; }
+    g+=`<text x="${(cx0+cx1)/2}" y="${cy+32}" fill="#eef2f4" font-size="11" text-anchor="middle" font-family="Chakra Petch" letter-spacing="2">${L("KONVEYÖR","CONVEYOR","الناقل")} ➜</text>`; }
   for(const f of A.fly){ for(let i=0;i<8;i++){ const yt=cy-ch-i*NEST*sc*0.55; g+=`<g transform="translate(${f.x-X} 0) rotate(${f.rot} ${X} ${cy})"><path d="M${X-40},${yt} L${X+40},${yt} L${X+28},${yt+ch} L${X-28},${yt+ch} Z" fill="${f.fall?"#ef5d4d":(i%2?"#e2453a":"#d23c32")}" stroke="#7a1f19" stroke-width=".8"/></g>`; } }
   // sweep arm: dark yellow, moves toward the conveyor; dashed ghosts at the back and forward positions
   const SY="#d99a1e", ax0=X-TW/2-14, ax1=ax0+C.sd*0.6, ax=ax0+A.arm*0.6, ah=70, at=cy-ah-2;
   const ghost=x=>`<rect x="${x}" y="${at}" width="10" height="${ah}" rx="2" fill="none" stroke="${SY}" stroke-dasharray="4 4" opacity=".7"/>`;
   g+=ghost(ax0)+ghost(ax1);
-  g+=`<text x="${ax0+5}" y="${at-8}" fill="${SY}" font-size="10" text-anchor="middle" font-family="Chakra Petch" letter-spacing="1">GERİ</text><text x="${ax1+5}" y="${at-8}" fill="${SY}" font-size="10" text-anchor="middle" font-family="Chakra Petch" letter-spacing="1">İLERİ</text>`;
+  g+=`<text x="${ax0+5}" y="${at-8}" fill="${SY}" font-size="10" text-anchor="middle" font-family="Chakra Petch" letter-spacing="1">${L("GERİ","BACK","خلف")}</text><text x="${ax1+5}" y="${at-8}" fill="${SY}" font-size="10" text-anchor="middle" font-family="Chakra Petch" letter-spacing="1">${L("İLERİ","FORWARD","أمام")}</text>`;
   const dy=at-30;
   g+=`<line x1="${ax0+5}" y1="${dy}" x2="${ax1+5}" y2="${dy}" stroke="${SY}" stroke-dasharray="5 4"/><path d="M${ax0+11},${dy-4} L${ax0+5},${dy} L${ax0+11},${dy+4} M${ax1-1},${dy-4} L${ax1+5},${dy} L${ax1-1},${dy+4}" stroke="${SY}" fill="none" stroke-width="1.5"/>`;
-  g+=`<text x="${(ax0+ax1)/2+5}" y="${dy-8}" fill="${SY}" font-size="12" text-anchor="middle" font-family="IBM Plex Mono">${PIST?"PİSTONLU SÜPÜRME · ayar yok":`SÜPÜRME İLERİ ${D.sd} mm`}</text>`;
-  if(!PIST) g+=`<text x="${(ax0+ax1)/2+5}" y="${dy+16}" fill="#e2eaee" font-size="11" text-anchor="middle" font-family="IBM Plex Mono">ileri %${D.sf} ➜   ⬅ geri %${D.sb}</text>`;
+  g+=`<text x="${(ax0+ax1)/2+5}" y="${dy-8}" fill="${SY}" font-size="12" text-anchor="middle" font-family="IBM Plex Mono">${PIST?L("PİSTONLU SÜPÜRME · ayar yok","PNEUMATIC SWEEP · no settings","كاسح هوائي · بلا ضبط"):L(`SÜPÜRME İLERİ ${D.sd} mm`,`SWEEP FORWARD ${D.sd} mm`,`تقدم الكاسح ${D.sd} mm`)}</text>`;
+  if(!PIST) g+=`<text x="${(ax0+ax1)/2+5}" y="${dy+16}" fill="#e2eaee" font-size="11" text-anchor="middle" font-family="IBM Plex Mono">${L("ileri","fwd","أمام")} %${D.sf} ➜   ⬅ ${L("geri","back","خلف")} %${D.sb}</text>`;
   g+=`<rect x="${ax0}" y="${at+ah/2-3}" width="${Math.max(0,ax-ax0)}" height="6" fill="#6b5320"/><rect x="${ax}" y="${at}" width="10" height="${ah}" rx="2" fill="${SY}"/>`;
   $("#dv").innerHTML=g;
   const P=C.P, bar=(t,lab,col)=>`<div>${lab}</div><div class="b"><i style="width:${Math.min(100,t/P*100)}%;background:${t>P?"#ef5d4d":col}"></i><span>${f2(t)} s / ${f2(P)} s</span></div>`;
-  $("#bars").innerHTML=bar(C.T1,"Normal vuruş (başlangıç → 1. kademe → geri)","#5fcf8f")+bar(C.T2,"Son ürün (2. kademeye çıkış ve dönüş)","#8fd8e6");
+  $("#bars").innerHTML=bar(C.T1,L("Normal vuruş (başlangıç → 1. kademe → geri)","Normal stroke (start → level 1 → back)","الشوط العادي (البداية ← المستوى 1 ← الرجوع)"),"#5fcf8f")+bar(C.T2,L("Son ürün (2. kademeye çıkış ve dönüş)","Last part (up to level 2 and back)","المنتج الأخير (الصعود إلى المستوى 2 والعودة)"),"#8fd8e6");
   $("#cnt").textContent=A.count; $("#pos").textContent=Math.round(A.pos); $("#hgt").textContent=stackH(Math.max(1,A.count)); $("#stk").textContent=A.done; $("#dev").textContent=A.fell;
 }
 function dPanel(){
   const {out,C}=dFaults(), bad=out.some(o=>o.bad), st=$("#dst");
   st.className="status"+(bad?" bad":out.length?" warn":"");
-  st.textContent=bad?"✖ DİZME HATALI":out.length?"⚠ ÇALIŞIR AMA AYAR GEREKİYOR":`✔ DİZME DOĞRU · itici ${f2(C.T1)} s'de dönüyor, çevrim ${f2(C.P)} s`;
+  st.textContent=bad?L("✖ DİZME HATALI","✖ STACKING FAULTY","✖ الرصّ معيب"):out.length?L("⚠ ÇALIŞIR AMA AYAR GEREKİYOR","⚠ WORKS BUT NEEDS ADJUSTING","⚠ يعمل لكنه يحتاج ضبطًا"):L(`✔ DİZME DOĞRU · itici ${f2(C.T1)} s'de dönüyor, çevrim ${f2(C.P)} s`,`✔ STACKING OK · pusher returns in ${f2(C.T1)} s, cycle ${f2(C.P)} s`,`✔ الرصّ سليم · الدافع يعود خلال ${f2(C.T1)} ث، الدورة ${f2(C.P)} ث`);
   $("#df").innerHTML=faultHtml(out);
-  $("#dtbl").innerHTML=`<tr><th>Hareket</th><th>Yol</th><th>Süre</th></tr>
-   <tr><td>Başlangıç → 1. kademe</td><td>${C.d1} mm · %${D.v1}</td><td>${f2(mv(C.d1,D.v1))} s</td></tr>
-   <tr><td>1. kademe → başlangıç</td><td>${C.d1} mm · %${D.vb}</td><td>${f2(mv(C.d1,D.vb))} s</td></tr>
-   <tr><td>1. → 2. kademe (son ürün)</td><td>${C.d2} mm · %${D.v2}</td><td>${f2(mv(C.d2,D.v2))} s</td></tr>
-   <tr><td>Süpürme ileri + geri</td><td>${C.sd} mm</td><td>${f2(C.tSw)} s</td></tr>`;
+  $("#dtbl").innerHTML=`<tr><th>${L("Hareket","Move","الحركة")}</th><th>${L("Yol","Travel","المسافة")}</th><th>${L("Süre","Time","الزمن")}</th></tr>
+   <tr><td>${L("Başlangıç → 1. kademe","Start → level 1","البداية ← المستوى 1")}</td><td>${C.d1} mm · %${D.v1}</td><td>${f2(mv(C.d1,D.v1))} s</td></tr>
+   <tr><td>${L("1. kademe → başlangıç","Level 1 → start","المستوى 1 ← البداية")}</td><td>${C.d1} mm · %${D.vb}</td><td>${f2(mv(C.d1,D.vb))} s</td></tr>
+   <tr><td>${L("1. → 2. kademe (son ürün)","Level 1 → 2 (last part)","المستوى 1 ← 2 (المنتج الأخير)")}</td><td>${C.d2} mm · %${D.v2}</td><td>${f2(mv(C.d2,D.v2))} s</td></tr>
+   <tr><td>${L("Süpürme ileri + geri","Sweep forward + back","الكسح أمام + خلف")}</td><td>${C.sd} mm</td><td>${f2(C.tSw)} s</td></tr>`;
   for(const k in D){ const r=DR[k], el=document.querySelector(`[data-k="${k}"] .v`); if(el) el.innerHTML=(r[3]?Number(D[k]).toFixed(r[3]):D[k])+`<small>${r[2]}</small>`; }
   document.querySelectorAll(".row.sw").forEach(r=>r.classList.toggle("lock",PIST)); $("#pist").classList.toggle("on",PIST);
 }
@@ -437,8 +478,8 @@ function tick(now){
     const last=A.count===D.n-1;
     if(A.phase==="up1"){ A.pos=D.p0+prof(A.t,C.d1,D.v1); if(A.t>=mv(C.d1,D.v1)){ A.t=0; if(last){A.phase="up2";} else {A.count++; A.phase="down";} } }
     else if(A.phase==="up2"){ A.pos=D.p1+prof(A.t,C.d2,D.v2); if(A.t>=mv(C.d2,D.v2)){ A.t=0; A.phase="wait"; } }
-    else if(A.phase==="wait"){ if(A.t>=D.wt){ A.t=0; A.phase="down"; const fail=out.find(o=>o.bad&&/devril|yüksek|tam geçmedi/.test(o.t));
-        A.fly.push({x:400,rot:0,phase:"wait",fall:fail?fail.t:null,short:fail&&/tam geçmedi/.test(fail.t)}); A.count=0; A.swPending=D.sk; } }
+    else if(A.phase==="wait"){ if(A.t>=D.wt){ A.t=0; A.phase="down"; const fail=out.find(o=>o.bad&&/^(tip|tall|short)$/.test(o.id||""));
+        A.fly.push({x:400,rot:0,phase:"wait",fall:fail?fail.t:null,short:fail&&fail.id==="short"}); A.count=0; A.swPending=D.sk; } }
     else if(A.phase==="down"){ const from=A.prevTop||D.p1; A.pos=Math.max(D.p0,(A.downFrom??D.p1)-prof(A.t,(A.downFrom??D.p1)-D.p0,D.vb));
         if(A.t>=mv((A.downFrom??D.p1)-D.p0,D.vb)){ A.pos=D.p0; A.downFrom=null; A.wait2=Math.max(0,C.P-(A.cycT||0)); A.t=0; A.phase="idle"; } }
     else if(A.phase==="idle"){ if(A.t>=A.wait2){ A.t=0; A.phase="up1"; A.cycT=0; if(A.swPending!=null){ A.swPending--; if(A.swPending<=0){ A.armDir=1; A.swPending=null; } } } }
@@ -480,8 +521,8 @@ $("#local").onclick=()=>{ LOCAL={c:Math.floor(Math.random()*8), s:SIDES[Math.flo
 $("#paperx").onclick=()=>{ PAPER={}; CUT=null; drawK(); };
 $("#cut").onclick=()=>{ CUT=doCut(); drawK(); };
 $("#pist").onclick=()=>{ PIST=!PIST; dPanel(); };
-$("#run").onclick=()=>{ A.run=!A.run; $("#run").textContent=A.run?"DURDUR":"BAŞLAT"; if(A.run&&!A.pos){ A.pos=D.p0; A.phase="up1"; A.t=0; } };
-$("#slow").onclick=()=>{ A.speed=A.speed===1?0.25:A.speed===0.25?0.1:1; $("#slow").textContent=A.speed===1?"1x":A.speed===0.25?"¼ yavaş":"1/10 yavaş"; };
+$("#run").onclick=()=>{ A.run=!A.run; $("#run").textContent=A.run?L("DURDUR","STOP","إيقاف"):L("BAŞLAT","START","تشغيل"); if(A.run&&!A.pos){ A.pos=D.p0; A.phase="up1"; A.t=0; } };
+$("#slow").onclick=()=>{ A.speed=A.speed===1?0.25:A.speed===0.25?0.1:1; $("#slow").textContent=A.speed===1?"1x":A.speed===0.25?L("¼ yavaş","¼ slow","¼ بطيء"):L("1/10 yavaş","1/10 slow","1/10 بطيء"); };
 $("#dreset").onclick=()=>{ Object.assign(D,D0); PIST=false; dPanel(); };
 
 // arrow buttons: a small die plate with arrows on it, in our colours
@@ -497,6 +538,8 @@ document.querySelectorAll(".arrows button[data-st]").forEach(b=>b.innerHTML=ARW(
 A.pos=D.p0;
 drawK(); dPanel(); requestAnimationFrame(tick);
 if("serviceWorker" in navigator && location.protocol==="https:") navigator.serviceWorker.register("sw.js").catch(()=>{});
+function onLang(){ mkEnds(); i18nStatic(); drawK(); dPanel(); $("#run").textContent=A.run?L("DURDUR","STOP","إيقاف"):L("BAŞLAT","START","تشغيل"); $("#slow").textContent=A.speed===1?"1x":A.speed===0.25?L("¼ yavaş","¼ slow","¼ بطيء"):L("1/10 yavaş","1/10 slow","1/10 بطيء"); }
+onLang();
 </script>
 </body>
 </html>
