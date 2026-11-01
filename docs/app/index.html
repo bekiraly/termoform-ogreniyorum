@@ -27,7 +27,9 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 button:focus-visible,.cell:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .app{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);grid-template-rows:auto minmax(0,1fr) auto;gap:10px;max-width:1500px;margin:0 auto;min-height:100%}
 .top{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px 14px}
-.brand{font-family:var(--f-disp);font-weight:700;font-size:20px;letter-spacing:.06em}
+.brand{font-family:var(--f-disp);font-weight:700;font-size:20px;letter-spacing:.06em;line-height:1.1}
+.copy{font-size:10.5px;color:var(--muted);letter-spacing:.05em;margin-top:2px;white-space:nowrap}
+.copy span{opacity:.8}
 .brand span{color:var(--accent)}
 .pagename{font-family:var(--f-disp);font-size:16px;letter-spacing:.05em;color:var(--muted)}
 .alarm{flex:1;min-width:200px;font-family:var(--f-mono);font-size:13px;padding:5px 10px;border-radius:4px;background:#0f1519;color:var(--ok);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -65,17 +67,24 @@ h2{font-family:var(--f-disp);font-size:13px;letter-spacing:.12em;text-transform:
 .hint{font-size:12px;color:var(--muted);margin:8px 2px 0;line-height:1.45}
 /* period channel + event table */
 svg text{font-family:var(--f-mono)}
-.chan{position:relative;height:46px;background:#2a3238;border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-top:42px}
+.chan{position:relative;height:34px;background:#2a3238;border:1px solid var(--line);border-radius:6px;overflow:hidden;margin:4px 0 10px}
 .chan .fill{position:absolute;inset:0 auto 0 0;width:0;background:linear-gradient(90deg,#2f8f5c,#47b878)}
-.chan .now{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-family:var(--f-mono);font-size:18px;font-weight:500;color:#fff;background:#0f1519cc;padding:2px 8px;border-radius:4px;font-variant-numeric:tabular-nums;z-index:2}
-.marks{position:absolute;inset:0}
-.mk{position:absolute;top:0;bottom:0;width:2px;background:#e2eaee;opacity:.75}
-.mk.bad{background:var(--bad);opacity:1;width:3px}
-.mk.mold{background:var(--warn);opacity:1}
-.mk span{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);font-family:var(--f-mono);font-size:10px;color:var(--muted);white-space:nowrap}
-.chan{overflow:visible}
-.mk.lo span{top:calc(100% + 4px);bottom:auto}
-.scale{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:10px;color:var(--muted);margin:40px 0 8px}
+.chan .now{position:absolute;right:6px;top:50%;transform:translateY(-50%);font-family:var(--f-mono);font-size:16px;font-weight:500;color:#fff;background:#0f1519cc;padding:1px 8px;border-radius:4px;font-variant-numeric:tabular-nums;z-index:2}
+.lanes{--lw:84px;position:relative;display:grid;gap:5px}
+@media (min-width:700px){.lanes,.scale{--lw:170px}}
+.ln{display:grid;grid-template-columns:var(--lw) 1fr;align-items:center;gap:8px}
+.ln b{font-family:var(--f-disp);font-weight:500;font-size:11px;letter-spacing:.03em;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ln .tk{position:relative;height:12px;background:#222a2f;border-radius:3px;background-image:repeating-linear-gradient(90deg,transparent 0 calc(25% - 1px),#ffffff14 calc(25% - 1px) 25%)}
+.ln .bar{position:absolute;top:0;bottom:0;border-radius:3px;min-width:3px}
+.ln .bar.over{border-radius:3px 0 0 3px;box-shadow:inset -3px 0 var(--bad)}
+.ln .cl{position:absolute;top:-2px;bottom:-2px;width:2px;background:#fff;opacity:.85}
+.ln.off b{opacity:.45}.ln.off .tk{opacity:.4}
+.ln.bad b{color:var(--bad)}.ln.bad .bar{background:var(--bad)!important}
+.ln.act b{color:var(--ink,#e8eef1)}
+.ph{position:absolute;top:-3px;bottom:-3px;left:calc(var(--lw) + 8px);right:0;pointer-events:none}
+.ph i{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:#fff;box-shadow:0 0 6px #fff9}
+.scale{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:10px;color:var(--muted);margin:5px 0 12px calc(var(--lw,84px) + 8px)}
+.sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-inline-end:7px;vertical-align:middle}
 .ev{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
 .ev th{font-family:var(--f-disp);font-size:11px;letter-spacing:.08em;color:var(--muted);font-weight:500;text-align:left;padding:4px 6px;border-bottom:1px solid var(--line)}
 .ev td{padding:6px;border-bottom:1px solid #26333b;vertical-align:top}
@@ -148,10 +157,11 @@ details.card[open]>summary::after{transform:rotate(180deg)}
 details.card[open]>summary{margin-bottom:8px}
 .logcount{font-family:var(--f-mono);font-size:11px;color:var(--muted);background:var(--panel2);border-radius:10px;padding:1px 8px}
 .logcount.bad{color:var(--bad)}
-.chan,.scale,.mach,.cell,.num,.disp,.counters b,.keys{direction:ltr;unicode-bidi:isolate}
+.chan,.lanes,.scale,.mach,.cell,.num,.disp,.counters b,.keys{direction:ltr;unicode-bidi:isolate}
 .chan .now{unicode-bidi:plaintext}
 [dir=rtl] body{font-family:"IBM Plex Sans Arabic",var(--f-body)}
 [dir=rtl] .brand,[dir=rtl] h2,[dir=rtl] .pagename,[dir=rtl] .btn,[dir=rtl] .chip,[dir=rtl] .ctab .nm,[dir=rtl] .ctab th,[dir=rtl] .ev th,[dir=rtl] .pad h3,[dir=rtl] .log li b{font-family:"IBM Plex Sans Arabic",var(--f-disp);letter-spacing:0}
+[dir=rtl] .ln b{direction:rtl;text-align:right}
 [dir=rtl] .counters{margin-left:0;margin-right:auto}
 [dir=rtl] .ctab th:first-child,[dir=rtl] .ev th{text-align:right}
 [dir=rtl] .ctab .nm{border-radius:0 4px 4px 0}
@@ -167,13 +177,12 @@ details.card[open]>summary{margin-bottom:8px}
 <body>
 <div class="app">
   <header class="top">
-    <div class="brand"><span id="b1">TERMOFORM</span> <span id="b2" style="color:var(--accent)">ÖĞRENİYORUM</span></div>
+    <div class="brandbox"><div class="brand"><span id="b1">TERMOFORM</span> <span id="b2" style="color:var(--accent)">ÖĞRENİYORUM</span></div><div class="copy"><bdi dir="ltr">© 2026 Bekir Yenigün</bdi> · <span data-t="rights"></span></div></div>
     <div class="pagename" id="pagename"></div>
     <div class="lang" id="lang" role="group" aria-label="Dil / Language / اللغة">
       <button data-lang="tr">TR</button><button data-lang="en">EN</button><button data-lang="ar">ع</button>
     </div>
     <div class="alarm" id="alarm"></div>
-    <div class="chip"><span data-t="level"></span> <b data-t="levelV"></b></div>
     <div class="chip"><span data-t="recipe"></span> <b data-t="recipeV"></b></div>
   </header>
 
@@ -186,7 +195,8 @@ details.card[open]>summary{margin-bottom:8px}
     </div>
     <div class="card">
       <h2 data-t="channel"></h2>
-      <div class="chan" id="chan"><div class="fill" id="fill"></div><div class="now" id="now">0.00</div><div class="marks" id="marks"></div></div>
+      <div class="chan" id="chan"><div class="fill" id="fill"></div><div class="now" id="now">0.00</div></div>
+      <div class="lanes" id="lanes"></div>
       <div class="scale" id="scale"></div>
       <table class="ev" id="ev"></table>
     </div>
@@ -241,7 +251,7 @@ const I18N = {
 tr:{
   dir:"ltr", u:"s", b1:"TERMOFORM", b2:"ÖĞRENİYORUM", page:"ÇEVRİM AYARLARI",
   ready:"Makine hazır. OTO ile üretimi başlat.", okIdle:"Ayarlar uygun. OTO ile üretimi başlat.", okRun:"Üretim normal. Ürünler sağlam.",
-  level:"SEVİYE", levelV:"ÇIRAK", recipe:"REÇETE", recipeV:"1000CC KAP · PET 0.26",
+  rights:"Tüm hakları saklıdır", recipe:"REÇETE", recipeV:"1000CC KAP · PET 0.26",
   station:"Şekilleme istasyonu · canlı", channel:"Periyot kanalı", log:"Olaylar ve açıklamalar",
   auto:"OTO BAŞLAT", stop:"STOP", speed:"Hız:", slow4:"¼ yavaş", slow10:"1/10 yavaş", sound:"SES", on:"AÇIK", off:"KAPALI",
   reset:"FABRİKA REÇETESİ", cpm:"Çevrim/dk", good:"Sağlam", bad:"Hatalı",
@@ -298,7 +308,7 @@ tr:{
 en:{
   dir:"ltr", u:"s", b1:"THERMOFORM", b2:"TRAINER", page:"CYCLE SETTINGS",
   ready:"Machine ready. Press AUTO to start production.", okIdle:"Settings OK. Press AUTO to start production.", okRun:"Production normal. Parts are good.",
-  level:"LEVEL", levelV:"APPRENTICE", recipe:"RECIPE", recipeV:"1000CC CUP · PET 0.26",
+  rights:"All rights reserved", recipe:"RECIPE", recipeV:"1000CC CUP · PET 0.26",
   station:"Forming station · live", channel:"Period channel", log:"Events and explanations",
   auto:"AUTO START", stop:"STOP", speed:"Speed:", slow4:"¼ slow", slow10:"1/10 slow", sound:"SOUND", on:"ON", off:"OFF",
   reset:"FACTORY RECIPE", cpm:"Cycles/min", good:"Good", bad:"Faulty",
@@ -355,7 +365,7 @@ en:{
 ar:{
   dir:"rtl", u:"ث", b1:"تعلّم", b2:"التشكيل الحراري", page:"إعدادات الدورة",
   ready:"الماكينة جاهزة. اضغط تشغيل تلقائي لبدء الإنتاج.", okIdle:"الإعدادات صحيحة. اضغط تشغيل تلقائي لبدء الإنتاج.", okRun:"الإنتاج طبيعي. المنتجات سليمة.",
-  level:"المستوى", levelV:"متدرب", recipe:"الوصفة", recipeV:"كوب 1000CC · PET 0.26",
+  rights:"جميع الحقوق محفوظة", recipe:"الوصفة", recipeV:"كوب 1000CC · PET 0.26",
   station:"محطة التشكيل · مباشر", channel:"قناة الدورة", log:"الأحداث والشروحات",
   auto:"تشغيل تلقائي", stop:"إيقاف", speed:"السرعة:", slow4:"¼ بطيء", slow10:"1/10 بطيء", sound:"الصوت", on:"مفعّل", off:"مغلق",
   reset:"وصفة المصنع", cpm:"دورة/دقيقة", good:"سليم", bad:"معيب",
@@ -589,15 +599,18 @@ function events(){
   return list.sort((a,b)=>a.s-b.s);
 }
 let EV=[];
+const COL={mold:"#f2c94c",chain:"#f2994a",form:"#56ccf2",vac:"#bb8cf2",blow:"#e8eef1",plug:"#6f9bff",pot:"#f27ab0"};
 function drawTimeline(){
-  const T=L(); EV=events(); const P=R.period, pct=v=>Math.min(100,v/P*100);
-  const pts=[]; EV.filter(e=>!e.off).forEach(e=>pts.push({v:e.s,k:e.k,l:n2(e.s)}));
-  pts.push({v:M.clampT,k:"mold",l:T.mkClamp+" "+n2(M.clampT),closed:1}); pts.push({v:M.closeEnd,k:"mold",l:T.mkClosed+" "+n2(M.closeEnd),closed:1});
-  pts.sort((a,b)=>a.v-b.v);
-  const lv=[["","-4px"],["","-18px"],["lo","-4px"],["lo","-18px"]];
-  $("#marks").innerHTML=pts.map((p,i)=>{const bd=!p.closed&&F.some(f=>(f.k||"mold")===p.k); const [cls,off]=lv[i%4];
-    const pos=cls?`top:calc(100% + ${-parseInt(off)}px)`:`bottom:calc(100% + ${-parseInt(off)}px)`;
-    return `<div class="mk ${p.k==='mold'?'mold':''} ${bd?'bad':''}" style="left:${pct(p.v)}%"><span style="${pos}">${p.l}</span></div>`;}).join("");
+  const T=L(); EV=events(); const P=R.period, pct=v=>Math.max(0,Math.min(100,v/P*100));
+  let h="";
+  for(const e of EV){
+    const bad=!e.off&&!e.open&&F.some(f=>(f.k||"mold")===e.k), over=e.e>P+0.005;
+    const tip=`${e.n}: ${n2(e.s)} → ${n2(e.e)}`;
+    let bar=e.off?"":`<div class="bar${over?" over":""}" style="left:${pct(e.s)}%;width:${pct(e.e)-pct(e.s)}%;background:${COL[e.k]}"></div>`;
+    if(!e.open&&e.k==="mold") bar+=`<div class="cl" style="left:${pct(M.clampT)}%" title="${T.mkClamp} ${n2(M.clampT)}"></div>`;
+    h+=`<div class="ln${e.off?" off":""}${bad?" bad":""}" data-s="${e.s}" data-e="${e.e}" title="${tip}"><b>${e.n}</b><div class="tk">${bar}</div></div>`;
+  }
+  $("#lanes").innerHTML=h+'<div class="ph"><i id="phl"></i></div>';
   let sc=""; for(let i=0;i<=4;i++) sc+=`<span>${n2(P*i/4)}</span>`; $("#scale").innerHTML=sc;
   drawTable();
 }
@@ -608,12 +621,13 @@ function drawTable(){
     const act=!e.off && t>=e.s && t<=e.e;
     const st=e.off?T.stOff:fault?fx(fault).t:act?T.stRun:t<e.s?T.stWait:T.stDone;
     const cls=[e.off?"off":"",fault?"bad":"",act?"act":"",e.k==="mold"?"mold":""].join(" ");
-    h+=`<tr class="${cls}"><td>${e.n}</td><td class="num">${n2(e.s)}</td><td class="num">${n2(e.e)}</td><td class="st">${st}</td></tr>`;
+    h+=`<tr class="${cls}"><td><span class="sw" style="background:${e.off?"#4a555c":COL[e.k]}"></span>${e.n}</td><td class="num">${n2(e.s)}</td><td class="num">${n2(e.e)}</td><td class="st">${st}</td></tr>`;
   }
   $("#ev").innerHTML=h;
 }
 function tickChannel(){
-  const P=R.period; $("#fill").style.width=(Math.min(1,t/P)*100)+"%";
+  const P=R.period, f=Math.min(1,t/P)*100; $("#fill").style.width=f+"%"; const ph=$("#phl"); if(ph) ph.style.left=f+"%";
+  document.querySelectorAll("#lanes .ln").forEach(l=>l.classList.toggle("act",!l.classList.contains("off")&&t>=+l.dataset.s&&t<=+l.dataset.e));
   const done=EV.filter(e=>!e.off&&e.s<=t); const lastE=done[done.length-1];
   $("#now").textContent=n2(t)+" "+L().u+(lastE?" · "+lastE.n:"");
 }
